@@ -2,77 +2,210 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Food</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icon.png">
-    <link rel="apple-touch-icon" href="icon.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #46b8bc;
+            --bg: #f7f9fb;
+            --card: #ffffff;
+            --text: #2d3436;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0 0 80px 0; /* Отступ под нижнее меню */
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        /* Шапка */
+        .header {
+            background: linear-gradient(135deg, var(--primary), #3498db);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+        .header p { margin: 5px 0 0 0; opacity: 0.8; font-size: 14px; }
+
+        /* Поиск */
+        .search-container {
+            padding: 0 20px;
+            margin-top: -20px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* Список блюд */
+        .section-title {
+            padding: 20px 20px 10px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 10px 20px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .card:active { transform: scale(0.95); }
+
+        .card-img {
+            width: 100%;
+            height: 120px;
+            background: #e1e8ed;
+            object-fit: cover;
+        }
+
+        .card-content { padding: 12px; }
+        .card-title { font-weight: 600; font-size: 14px; margin-bottom: 5px; }
+        .card-price { color: var(--primary); font-weight: bold; font-size: 14px; }
+
+        /* Нижнее меню */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #b2bec3;
+            text-decoration: none;
+            font-size: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-item.active { color: var(--primary); font-weight: 600; }
+
+        /* Плавающая кнопка + */
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            box-shadow: 0 5px 15px rgba(70, 184, 188, 0.4);
+            border: none;
+            z-index: 99;
+        }
+
+        /* Модалка (Рецепт) */
+        .modal {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: absolute;
+            bottom: 0;
+            background: white;
+            width: 100%;
+            border-radius: 30px 30px 0 0;
+            padding: 30px 20px;
+            box-sizing: border-box;
+            max-height: 85%;
+            overflow-y: auto;
+        }
+        
+        .close-bar {
+            width: 40px;
+            height: 5px;
+            background: #dfe6e9;
+            border-radius: 10px;
+            margin: -15px auto 20px;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="app-wrapper">
-        <header class="main-header">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h1 style="margin:0; color: #2d3436; font-size: 22px;">Project Food</h1>
-                <div id="header-actions">
-                    <button id="main-add-btn" onclick="toggleAddForm()" style="background:#46b8bc; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:24px; cursor:pointer;">+</button>
-                </div>
-            </div>
-            <nav class="navigation-tabs">
-                <button class="tab-btn active" id="btn-recipes" onclick="switchTab('recipes')">Меню</button>
-                <button class="tab-btn" id="btn-stock" onclick="switchTab('stock')">Склад</button>
-                <button class="tab-btn" id="btn-cart" onclick="switchTab('cart')">Корзина</button>
-            </nav>
-        </header>
-
-        <main id="app-content">
-            <section id="recipe-list" class="content-view active"></section>
-            <section id="stock-list" class="content-view" style="display:none;"></section>
-            <section id="cart-list" class="content-view" style="display:none;"></section>
-        </main>
-
-        <div id="active-timer-display" style="display:none; background:#f39c12; color:white; padding:12px 25px; border-radius:30px; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:1000; align-items:center; gap:12px;">
-            <span>⏲️</span> <span id="timer-countdown">00:00</span>
-            <button onclick="stopVisualTimer()" style="background:none; border:none; color:white; font-size:16px;">✕</button>
-        </div>
+    <div class="header">
+        <h1>Project Food</h1>
+        <p>Что будем готовить сегодня?</p>
     </div>
 
-    <div id="recipe-modal" class="modal-overlay" onclick="closeModal()">
-        <div class="modal-window" onclick="event.stopPropagation()">
-            <button class="close-x" onclick="closeModal()">×</button>
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Поиск рецепта или продукта..." oninput="search(this.value)">
+    </div>
+
+    <div id="recipe-list-section">
+        <div class="section-title">Ваше меню</div>
+        <div class="grid" id="recipe-list">
+            </div>
+    </div>
+
+    <div id="stock-list-section" style="display:none;">
+        <div class="section-title">Склад ингредиентов</div>
+        <div id="stock-list"></div>
+    </div>
+
+    <div id="cart-list-section" style="display:none;">
+        <div class="section-title">Список покупок</div>
+        <div id="cart-list"></div>
+    </div>
+
+    <button class="fab" id="main-add-btn">+</button>
+
+    <div class="bottom-nav">
+        <button class="nav-item active" id="btn-recipes" onclick="switchTab('recipes')">
+            <div>🍴</div>Меню
+        </button>
+        <button class="nav-item" id="btn-stock" onclick="switchTab('stock')">
+            <div>📦</div>Склад
+        </button>
+        <button class="nav-item" id="btn-cart" onclick="switchTab('cart')">
+            <div>🛒</div>Покупки
+        </button>
+    </div>
+
+    <div id="recipe-modal" class="modal" onclick="if(event.target == this) closeModal()">
+        <div class="modal-content">
+            <div class="close-bar"></div>
             <div id="modal-body"></div>
-        </div>
-    </div>
-
-    <div id="add-form-modal" class="modal-overlay" onclick="toggleAddForm()">
-        <div class="modal-window" onclick="event.stopPropagation()">
-            <h2 style="color:#46b8bc; margin-top:0;">Новое блюдо</h2>
-            <input type="text" id="new-name" placeholder="Название" class="form-input">
-            <div style="margin-bottom:15px;"><input type="file" id="new-image" accept="image/*" class="form-input"></div>
-            <div style="display:flex; gap:8px; margin-bottom:10px;">
-                <input type="number" id="new-kcal" placeholder="Ккал" class="form-input" style="flex:1;">
-                <input type="number" id="new-price" placeholder="Цена (₽)" class="form-input" style="flex:1;">
-            </div>
-            <textarea id="new-ings" placeholder="Ингредиенты (через запятую)" class="form-input" rows="2"></textarea>
-            <textarea id="new-steps" placeholder="Инструкция (через ;)" class="form-input" rows="2"></textarea>
-            <button class="action-btn" onclick="saveRecipe()">Сохранить рецепт</button>
-        </div>
-    </div>
-
-    <div id="add-product-modal" class="modal-overlay" onclick="toggleProductForm()">
-        <div class="modal-window" onclick="event.stopPropagation()">
-            <h2 style="color:#46b8bc; margin-top:0;">Новый продукт</h2>
-            <input type="text" id="prod-name" placeholder="Название (например, Томаты)" class="form-input">
-            <input type="text" id="prod-cat" placeholder="Категория (например, Овощи)" class="form-input">
-            <div style="display:flex; gap:8px; margin-bottom:10px;">
-                <input type="number" id="prod-kcal" placeholder="Ккал/100г" class="form-input" style="flex:1;">
-                <input type="number" id="prod-price" placeholder="Цена/ед." class="form-input" style="flex:1;">
-            </div>
-            <button class="action-btn" onclick="saveProduct()">Добавить на склад</button>
         </div>
     </div>
 
