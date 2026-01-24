@@ -33,8 +33,8 @@ async function loadRecipes() {
         return;
     }
 
-    if (data.length === 0) {
-        container.innerHTML = '<p style="padding:20px; text-align:center; color:#999;">В меню пока ничего нет</p>';
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="padding:20px; text-align:center; color:#999;">В меню пока пусто</p>';
         return;
     }
 
@@ -79,8 +79,49 @@ async function addToCart(ings, dishName) {
     const { error } = await _supabase.from('cart').insert(items);
 
     if (error) {
-        alert('Нужно включить Policies в Supabase: ' + error.message);
+        alert('Ошибка при добавлении: ' + error.message);
     } else {
         alert('Добавлено в список покупок!');
         closeModal();
     }
+}
+
+// 6. ЗАГРУЗКА КОРЗИНЫ
+async function loadCart() {
+    const container = document.getElementById('cart-list');
+    container.innerHTML = '<p style="padding:20px; text-align:center;">Загрузка корзины...</p>';
+
+    const { data, error } = await _supabase.from('cart').select('*');
+
+    if (error) {
+        container.innerHTML = `<p style="padding:20px;">Ошибка: ${error.message}</p>`;
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="padding:20px; text-align:center; color:#999;">Корзина пуста</p>';
+        return;
+    }
+
+    container.innerHTML = `
+        <div style="padding:15px;">
+            ${data.map(item => `
+                <div style="background:white; padding:12px; border-radius:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                    <b style="color:#2d3436;">${item.item_name}</b>
+                    <small style="color:#999; font-style:italic;">${item.dish_name}</small>
+                </div>
+            `).join('')}
+            <button onclick="clearCart()" style="background:#ff7675; color:white; border:none; padding:15px; width:100%; border-radius:12px; margin-top:15px; font-weight:bold; cursor:pointer;">Очистить корзину</button>
+        </div>
+    `;
+}
+
+// 7. ОЧИСТКА КОРЗИНЫ
+async function clearCart() {
+    if (!confirm('Очистить весь список покупок?')) return;
+    const { error } = await _supabase.from('cart').delete().neq('id', 0);
+    if (!error) loadCart();
+}
+
+// СТАРТ
+document.addEventListener('DOMContentLoaded', loadRecipes);
