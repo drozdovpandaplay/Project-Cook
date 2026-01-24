@@ -6,11 +6,15 @@
     <title>Project Food</title>
     
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/username/project-food/main/icon.png">
+    <meta name="apple-mobile-web-app-title" content="Project Food">
 
     <link rel="stylesheet" href="style.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -29,12 +33,14 @@
 
         <main id="app-content">
             <section id="recipe-list" class="content-view active"></section>
+            
             <section id="cart-list" class="content-view" style="display:none;"></section>
         </main>
 
         <div id="active-timer-display" style="display:none; background:#f39c12; color:white; padding:12px 25px; border-radius:30px; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:1000; align-items:center; gap:12px; font-weight:bold;">
-            <span>⏲️</span> <span id="timer-countdown">00:00</span>
-            <button onclick="stopVisualTimer()" style="background:rgba(255,255,255,0.2); border:none; color:white; border-radius:50%; width:24px; height:24px; cursor:pointer;">✕</button>
+            <span>⏲️</span>
+            <span id="timer-countdown">00:00</span>
+            <button onclick="stopVisualTimer()" style="background:rgba(255,255,255,0.2); border:none; color:white; border-radius:50%; width:24px; height:24px; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center;">✕</button>
         </div>
     </div>
 
@@ -48,18 +54,23 @@
     <div id="add-form-modal" class="modal-overlay" onclick="toggleAddForm()">
         <div class="modal-window" onclick="event.stopPropagation()">
             <h2 style="color:#46b8bc; margin-top:0;">Новое блюдо</h2>
-            <input type="text" id="new-name" placeholder="Название" class="form-input">
-            <div style="margin-bottom:15px;">
-                <label style="display:block; font-size:12px; color:#999; margin-bottom:5px;">📸 Фото:</label>
-                <input type="file" id="new-image" accept="image/*" class="form-input">
+            
+            <input type="text" id="new-name" placeholder="Название блюда" class="form-input">
+            
+            <div style="margin-bottom:15px; background: #f8f9fa; padding: 10px; border-radius: 10px;">
+                <label style="display:block; font-size:12px; color:#666; margin-bottom:5px;">📸 Фото блюда:</label>
+                <input type="file" id="new-image" accept="image/*" class="form-input" style="border:none; padding:0;">
             </div>
+
             <div style="display:flex; gap:8px; margin-bottom:10px;">
                 <input type="number" id="new-kcal" placeholder="Ккал" class="form-input" style="flex:1;">
                 <input type="number" id="new-price" placeholder="Цена (₽)" class="form-input" style="flex:1;">
             </div>
+            
             <textarea id="new-ings" placeholder="Ингредиенты (через запятую)" class="form-input" rows="2"></textarea>
-            <textarea id="new-steps" placeholder="Инструкция (через ;)" class="form-input" rows="2"></textarea>
-            <button class="action-btn" onclick="saveRecipe()">Сохранить</button>
+            <textarea id="new-steps" placeholder="Инструкция (шаги через ;)" class="form-input" rows="2"></textarea>
+            
+            <button class="action-btn" onclick="saveRecipe()">Сохранить в базу</button>
         </div>
     </div>
 
