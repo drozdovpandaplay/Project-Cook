@@ -3,37 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Project Cook</title>
+    <title>Project Food</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
     <div class="app-wrapper">
         <header class="main-header">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h1 style="margin:0;">Project Food</h1>
-                <button onclick="toggleAddForm()" style="background:#46b8bc; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:24px; cursor:pointer; box-shadow: 0 4px 10px rgba(70,184,188,0.3);">+</button>
+                <button onclick="toggleAddForm()" style="background:#46b8bc; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:24px; cursor:pointer;">+</button>
             </div>
             <nav class="navigation-tabs">
                 <button class="tab-btn active" id="btn-recipes" onclick="switchTab('recipes')">Меню</button>
                 <button class="tab-btn" id="btn-cart" onclick="switchTab('cart')">Корзина</button>
             </nav>
         </header>
-
         <main id="app-content">
             <section id="recipe-list" class="content-view active"></section>
             <section id="cart-list" class="content-view" style="display:none;"></section>
         </main>
     </div>
-
     <div id="recipe-modal" class="modal-overlay" onclick="closeModal()">
         <div class="modal-window" onclick="event.stopPropagation()">
             <button class="close-x" onclick="closeModal()">×</button>
             <div id="modal-body"></div>
         </div>
     </div>
-
     <div id="add-form-modal" class="modal-overlay" onclick="toggleAddForm()">
         <div class="modal-window" onclick="event.stopPropagation()">
             <h2 style="color:#46b8bc; margin-top:0;">Новый рецепт</h2>
@@ -48,7 +44,6 @@
             <button onclick="toggleAddForm()" style="background:none; border:none; color:#999; width:100%; margin-top:10px; cursor:pointer;">Отмена</button>
         </div>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>
