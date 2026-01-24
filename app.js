@@ -20,10 +20,10 @@ function switchTab(type) {
 
 async function loadRecipes() {
     const container = document.getElementById('recipe-list');
-    container.innerHTML = '<p style="text-align:center; padding:20px;">Загрузка...</p>';
+    container.innerHTML = '<p style="text-align:center; padding:20px;">Загрузка меню...</p>';
 
     const { data, error } = await _supabase.from('recipes').select('*');
-    if (error) return container.innerHTML = 'Ошибка загрузки';
+    if (error) return container.innerHTML = 'Ошибка загрузки данных';
 
     container.innerHTML = data.map(r => `
         <div class="card" onclick='openRecipe(${JSON.stringify(r)})'>
@@ -39,67 +39,11 @@ function openRecipe(r) {
 
     modalBody.innerHTML = `
         <h2 style="color:#46b8bc; margin:0 0 15px 0;">${r.name}</h2>
-        <p><b>Ингредиенты:</b><br>${r.ings}</p>
+        <div style="background:#f9f9f9; padding:15px; border-radius:15px; margin-bottom:15px;">
+            <b>Ингредиенты:</b><br>${r.ings}
+        </div>
         <p><b>Приготовление:</b></p>
-        <ol>${stepsHtml}</ol>
+        <ol style="padding-left:20px;">${stepsHtml}</ol>
         <button class="action-btn" onclick="addToCart('${r.ings}', '${r.name}')">🛒 В корзину</button>
     `;
-    document.getElementById('recipe-modal').style.display = 'block';
-}
-
-function closeModal() {
-    document.getElementById('recipe-modal').style.display = 'none';
-}
-
-function toggleAddForm() {
-    const modal = document.getElementById('add-form-modal');
-    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-}
-
-async function saveRecipe() {
-    const name = document.getElementById('new-name').value;
-    const kcal = document.getElementById('new-kcal').value;
-    const weight = document.getElementById('new-weight').value;
-    const ings = document.getElementById('new-ings').value;
-    const steps = document.getElementById('new-steps').value;
-
-    if (!name || !ings) return alert('Название и ингредиенты обязательны!');
-
-    const { error } = await _supabase.from('recipes').insert([{ name, kcal, weight, ings, steps }]);
-
-    if (error) {
-        alert('Ошибка: ' + error.message);
-    } else {
-        alert('Рецепт добавлен!');
-        toggleAddForm();
-        loadRecipes();
-    }
-}
-
-async function addToCart(ings, dishName) {
-    const items = ings.split(',').map(i => ({ item_name: i.trim(), dish_name: dishName }));
-    const { error } = await _supabase.from('cart').insert(items);
-    if (!error) { alert('В списке покупок!'); closeModal(); }
-}
-
-async function loadCart() {
-    const container = document.getElementById('cart-list');
-    const { data, error } = await _supabase.from('cart').select('*');
-    if (error || !data.length) return container.innerHTML = '<p style="text-align:center; padding:20px;">Список пуст</p>';
-
-    container.innerHTML = data.map(item => `
-        <div style="background:white; margin:10px 15px; padding:15px; border-radius:12px; display:flex; justify-content:space-between;">
-            <b>${item.item_name}</b>
-            <small style="color:#999">${item.dish_name}</small>
-        </div>
-    `).join('') + `<button onclick="clearCart()" style="margin:20px; color:red; background:none; border:none; width:90%; cursor:pointer;">Очистить всё</button>`;
-}
-
-async function clearCart() {
-    if (confirm('Очистить корзину?')) {
-        await _supabase.from('cart').delete().neq('id', 0);
-        loadCart();
-    }
-}
-
-document.addEventListener('DOMContentLoaded', loadRecipes);
+    document.getElementById('recipe-
