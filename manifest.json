@@ -1,0 +1,17 @@
+{
+  "name": "Project Food",
+  "short_name": "FoodApp",
+  "description": "Твой персональный кулинарный ассистент с авторасчетом цен",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#46b8bc",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/username/project-food/main/icon.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
