@@ -12,8 +12,8 @@
     <div class="app-wrapper">
         <header class="main-header">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h1 style="margin:0;">Project Food</h1>
-                <button onclick="toggleAddForm()" style="background:#46b8bc; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:24px; cursor:pointer; box-shadow: 0 4px 10px rgba(70,184,188,0.3);">+</button>
+                <h1 style="margin:0; color: #2d3436; font-size: 24px;">Project Food</h1>
+                <button onclick="toggleAddForm()" style="background:#46b8bc; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:24px; cursor:pointer; box-shadow: 0 4px 12px rgba(70,184,188,0.3); display: flex; align-items: center; justify-content: center;">+</button>
             </div>
             <nav class="navigation-tabs">
                 <button class="tab-btn active" id="btn-recipes" onclick="switchTab('recipes')">Меню</button>
@@ -37,21 +37,23 @@
 
     <div id="add-form-modal" class="modal-overlay" onclick="toggleAddForm()">
         <div class="modal-window" onclick="event.stopPropagation()">
-            <h2 style="color:#46b8bc; margin-top:0;">Новое блюдо</h2>
+            <h2 style="color:#46b8bc; margin-top:0; font-size: 20px;">Новое блюдо</h2>
             
             <input type="text" id="new-name" placeholder="Название блюда" class="form-input">
             
             <div style="display:flex; gap:8px; margin-bottom:10px;">
-                <input type="number" id="new-kcal" placeholder="Ккал" class="form-input" style="margin-bottom:0;">
-                <input type="number" id="new-weight" placeholder="Вес (г)" class="form-input" style="margin-bottom:0;">
-                <input type="number" id="new-price" placeholder="Цена (₽)" class="form-input" style="margin-bottom:0;">
+                <input type="number" id="new-kcal" placeholder="Ккал" class="form-input" style="margin-bottom:0; flex: 1;">
+                <input type="number" id="new-weight" placeholder="Вес (г)" class="form-input" style="margin-bottom:0; flex: 1;">
+                <input type="number" id="new-price" placeholder="Цена (₽)" class="form-input" style="margin-bottom:0; flex: 1;">
             </div>
             
             <textarea id="new-ings" placeholder="Ингредиенты (через запятую)" class="form-input" rows="3"></textarea>
-            <textarea id="new-steps" placeholder="Инструкция (через ;)" class="form-input" rows="3"></textarea>
+            <textarea id="new-steps" placeholder="Инструкция по шагам (через ;)" class="form-input" rows="3"></textarea>
             
-            <button class="action-btn" onclick="saveRecipe()">Сохранить в меню</button>
-            <button onclick="toggleAddForm()" style="background:none; border:none; color:#999; width:100%; margin-top:12px; cursor:pointer; font-size:14px;">Отмена</button>
+            <p style="font-size: 12px; color: #999; margin: -5px 0 10px 5px;">*Если оставить цену и ккал пустыми, они подтянутся из базы продуктов автоматически.</p>
+            
+            <button class="action-btn" onclick="saveRecipe()">Сохранить в базу</button>
+            <button onclick="toggleAddForm()" style="background:none; border:none; color:#999; width:100%; margin-top:12px; cursor:pointer; font-size:14px;">Закрыть</button>
         </div>
     </div>
 
