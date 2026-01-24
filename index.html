@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Project Food</title>
-    
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Project Food">
-
     <link rel="stylesheet" href="style.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -22,25 +17,27 @@
     <div class="app-wrapper">
         <header class="main-header">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h1 style="margin:0; color: #2d3436; font-size: 24px;">Project Food</h1>
-                <button onclick="toggleAddForm()" style="background:#46b8bc; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:24px; cursor:pointer; box-shadow: 0 4px 12px rgba(70,184,188,0.3); display: flex; align-items: center; justify-content: center;">+</button>
+                <h1 style="margin:0; color: #2d3436; font-size: 22px;">Project Food</h1>
+                <div id="header-actions">
+                    <button id="main-add-btn" onclick="toggleAddForm()" style="background:#46b8bc; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:24px; cursor:pointer;">+</button>
+                </div>
             </div>
             <nav class="navigation-tabs">
                 <button class="tab-btn active" id="btn-recipes" onclick="switchTab('recipes')">Меню</button>
+                <button class="tab-btn" id="btn-stock" onclick="switchTab('stock')">Склад</button>
                 <button class="tab-btn" id="btn-cart" onclick="switchTab('cart')">Корзина</button>
             </nav>
         </header>
 
         <main id="app-content">
             <section id="recipe-list" class="content-view active"></section>
-            
+            <section id="stock-list" class="content-view" style="display:none;"></section>
             <section id="cart-list" class="content-view" style="display:none;"></section>
         </main>
 
-        <div id="active-timer-display" style="display:none; background:#f39c12; color:white; padding:12px 25px; border-radius:30px; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:1000; align-items:center; gap:12px; font-weight:bold;">
-            <span>⏲️</span>
-            <span id="timer-countdown">00:00</span>
-            <button onclick="stopVisualTimer()" style="background:rgba(255,255,255,0.2); border:none; color:white; border-radius:50%; width:24px; height:24px; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center;">✕</button>
+        <div id="active-timer-display" style="display:none; background:#f39c12; color:white; padding:12px 25px; border-radius:30px; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:1000; align-items:center; gap:12px;">
+            <span>⏲️</span> <span id="timer-countdown">00:00</span>
+            <button onclick="stopVisualTimer()" style="background:none; border:none; color:white; font-size:16px;">✕</button>
         </div>
     </div>
 
@@ -54,23 +51,28 @@
     <div id="add-form-modal" class="modal-overlay" onclick="toggleAddForm()">
         <div class="modal-window" onclick="event.stopPropagation()">
             <h2 style="color:#46b8bc; margin-top:0;">Новое блюдо</h2>
-            
-            <input type="text" id="new-name" placeholder="Название блюда" class="form-input">
-            
-            <div style="margin-bottom:15px; background: #f8f9fa; padding: 10px; border-radius: 10px;">
-                <label style="display:block; font-size:12px; color:#666; margin-bottom:5px;">📸 Фото блюда:</label>
-                <input type="file" id="new-image" accept="image/*" class="form-input" style="border:none; padding:0;">
-            </div>
-
+            <input type="text" id="new-name" placeholder="Название" class="form-input">
+            <div style="margin-bottom:15px;"><input type="file" id="new-image" accept="image/*" class="form-input"></div>
             <div style="display:flex; gap:8px; margin-bottom:10px;">
                 <input type="number" id="new-kcal" placeholder="Ккал" class="form-input" style="flex:1;">
                 <input type="number" id="new-price" placeholder="Цена (₽)" class="form-input" style="flex:1;">
             </div>
-            
             <textarea id="new-ings" placeholder="Ингредиенты (через запятую)" class="form-input" rows="2"></textarea>
-            <textarea id="new-steps" placeholder="Инструкция (шаги через ;)" class="form-input" rows="2"></textarea>
-            
-            <button class="action-btn" onclick="saveRecipe()">Сохранить в базу</button>
+            <textarea id="new-steps" placeholder="Инструкция (через ;)" class="form-input" rows="2"></textarea>
+            <button class="action-btn" onclick="saveRecipe()">Сохранить рецепт</button>
+        </div>
+    </div>
+
+    <div id="add-product-modal" class="modal-overlay" onclick="toggleProductForm()">
+        <div class="modal-window" onclick="event.stopPropagation()">
+            <h2 style="color:#46b8bc; margin-top:0;">Новый продукт</h2>
+            <input type="text" id="prod-name" placeholder="Название (например, Томаты)" class="form-input">
+            <input type="text" id="prod-cat" placeholder="Категория (например, Овощи)" class="form-input">
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <input type="number" id="prod-kcal" placeholder="Ккал/100г" class="form-input" style="flex:1;">
+                <input type="number" id="prod-price" placeholder="Цена/ед." class="form-input" style="flex:1;">
+            </div>
+            <button class="action-btn" onclick="saveProduct()">Добавить на склад</button>
         </div>
     </div>
 
