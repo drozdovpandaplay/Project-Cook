@@ -43,15 +43,21 @@
     <div id="add-form-modal" class="modal-overlay" onclick="toggleAddForm()">
         <div class="modal-window" onclick="event.stopPropagation()">
             <h2 style="color:#46b8bc; margin-top:0;">Новое блюдо</h2>
-            <input type="text" id="new-name" placeholder="Название" class="form-input">
+            <input type="text" id="new-name" placeholder="Название блюда" class="form-input">
+            
+            <div style="margin-bottom:15px;">
+                <label style="display:block; font-size:12px; color:#999; margin-bottom:5px;">📸 Фото блюда:</label>
+                <input type="file" id="new-image" accept="image/*" class="form-input" style="padding:8px;">
+            </div>
+
             <div style="display:flex; gap:8px; margin-bottom:10px;">
                 <input type="number" id="new-kcal" placeholder="Ккал" class="form-input" style="flex:1;">
                 <input type="number" id="new-weight" placeholder="Вес (г)" class="form-input" style="flex:1;">
                 <input type="number" id="new-price" placeholder="Цена (₽)" class="form-input" style="flex:1;">
             </div>
-            <textarea id="new-ings" placeholder="Ингредиенты (через запятую)" class="form-input" rows="3"></textarea>
-            <textarea id="new-steps" placeholder="Инструкция (через ;)" class="form-input" rows="3"></textarea>
-            <button class="action-btn" onclick="saveRecipe()">Сохранить</button>
+            <textarea id="new-ings" placeholder="Ингредиенты (через запятую)" class="form-input" rows="2"></textarea>
+            <textarea id="new-steps" placeholder="Инструкция (через ;)" class="form-input" rows="2"></textarea>
+            <button class="action-btn" onclick="saveRecipe()">Сохранить блюдо</button>
         </div>
     </div>
 
