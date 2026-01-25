@@ -8,41 +8,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #46b8bc; --bg: #f7f9fb; --card: #ffffff; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 100px; }
-        .header { background: linear-gradient(135deg, var(--primary), #3498db); color: white; padding: 30px 20px 40px; border-radius: 0 0 25px 25px; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 100px; color: #2d3436; }
+        .header { background: linear-gradient(135deg, var(--primary), #3498db); color: white; padding: 30px 20px 45px; border-radius: 0 0 30px 30px; }
         .search-container { padding: 0 20px; margin-top: -20px; }
-        .search-input { width: 100%; padding: 15px; border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
-        .category-row { display: flex; overflow-x: auto; gap: 15px; padding: 10px 20px; scroll-snap-type: x mandatory; }
-        .card { flex: 0 0 75%; background: white; border-radius: 20px; padding: 15px; scroll-snap-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 2px solid transparent; }
+        .search-input { width: 100%; padding: 15px; border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.08); box-sizing: border-box; outline: none; }
+        
+        .category-row { display: flex; overflow-x: auto; gap: 15px; padding: 10px 20px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+        .category-row::-webkit-scrollbar { display: none; }
+        
+        .card { flex: 0 0 75%; background: white; border-radius: 22px; padding: 15px; scroll-snap-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 2px solid transparent; transition: 0.3s; position: relative; }
         .selected-card { border-color: var(--primary); background: #f0fbfc; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; }
-        .nav-item { background: none; border: none; color: #b2bec3; font-size: 12px; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .modal-content { position: absolute; bottom: 0; background: white; width: 100%; border-radius: 25px 25px 0 0; padding: 25px; box-sizing: border-box; max-height: 80%; overflow-y: auto; }
-        .checked-item { opacity: 0.5; text-decoration: line-through; }
+        
+        .badge { position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .selected-card .badge { background: var(--primary); border-color: var(--primary); color: white; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 25px; border-top: 1px solid #eee; z-index: 100; }
+        .nav-item { background: none; border: none; color: #b2bec3; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
+        .modal-content { position: absolute; bottom: 0; background: white; width: 100%; border-radius: 30px 30px 0 0; padding: 25px; box-sizing: border-box; max-height: 85%; overflow-y: auto; }
+        .checked-item { opacity: 0.4; text-decoration: line-through; }
     </style>
 </head>
 <body>
-    <div class="header"><h2>Project Food</h2></div>
+    <div class="header"><h2 style="margin:0">Project Food</h2></div>
     <div class="search-container"><input type="text" class="search-input" placeholder="Найти рецепт..." oninput="search(this.value)"></div>
 
-    <div id="recipe-list-section">
-        <div id="categories-container" style="padding-top: 20px;"></div>
-    </div>
-    
-    <div id="stock-list-section" style="display:none;">
-        <div id="stock-list" style="padding: 20px;"></div>
-    </div>
-
-    <div id="cart-list-section" style="display:none;">
-        <div id="cart-list" style="padding: 20px;"></div>
-    </div>
+    <div id="recipe-list-section"><div id="categories-container"></div></div>
+    <div id="cart-list-section" style="display:none;"><div id="cart-list"></div></div>
 
     <nav class="bottom-nav">
-        <button class="nav-item active" id="btn-recipes" onclick="switchTab('recipes')">🍴 Меню</button>
-        <button class="nav-item" id="btn-stock" onclick="switchTab('stock')">📦 Склад</button>
-        <button class="nav-item" id="btn-cart" onclick="switchTab('cart')">🛒 Покупки</button>
+        <button class="nav-item active" id="btn-recipes" onclick="switchTab('recipes')"><div style="font-size:18px">🍴</div>Меню</button>
+        <button class="nav-item" id="btn-cart" onclick="switchTab('cart')"><div style="font-size:18px">🛒</div>Покупки</button>
     </nav>
 
     <div id="recipe-modal" class="modal" onclick="if(event.target == this) closeModal()">
