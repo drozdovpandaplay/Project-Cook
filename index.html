@@ -3,36 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Project Food</title>
+    <title>Project Food Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root { --primary: #46b8bc; --bg: #f7f9fb; }
-        body { font-family: sans-serif; margin: 0; background: var(--bg); padding-bottom: 100px; }
-        .header { background: var(--primary); color: white; padding: 30px 20px; border-radius: 0 0 25px 25px; }
-        .category-row { display: flex; overflow-x: auto; gap: 15px; padding: 15px; scrollbar-width: none; }
-        .card { flex: 0 0 280px; background: white; border-radius: 20px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        /* Исправляем стили из скриншота a9d650b6 */
-        .card-image { 
-            width: 100%; 
-            height: 160px; 
-            border-radius: 15px; 
-            object-fit: cover; 
-            background: #eef2f3; 
-        }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; }
-        .section { display: none; }
-        .section.active { display: block; }
-        .main-btn { width: 90%; margin: 10px auto; display: block; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 15px; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="header"><h1>Project Food</h1></div>
-    <div id="recipes" class="section active"><div id="menu-container"></div></div>
-    <div id="cart" class="section"><div id="cart-container" style="padding:20px;"></div></div>
+
+    <div class="header">
+        <h1>Project Food</h1>
+        <input type="text" id="searchInput" class="search-box" placeholder="Поиск среди 100 рецептов...">
+    </div>
+
+    <div id="recipe-list-section" class="section active">
+        <div id="categories-container" class="menu-grid"></div>
+    </div>
+
+    <div id="recipe-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeRecipe()">&times;</span>
+            <div id="recipe-detail-content">
+                </div>
+        </div>
+    </div>
+
+    <div id="global-timer" class="timer-float" style="display: none;">
+        <span id="timer-count">00:00</span>
+        <button onclick="stopTimer()">🛑</button>
+    </div>
+
     <nav class="bottom-nav">
-        <button onclick="showTab('recipes')">🍴 МЕНЮ</button>
-        <button onclick="showTab('cart')">🛒 ПОКУПКИ</button>
+        <button onclick="location.reload()" class="nav-item active">🍴 МЕНЮ</button>
+        <button onclick="alert('Скоро!')" class="nav-item">🛒 КОРЗИНА</button>
     </nav>
+
     <script src="app.js"></script>
 </body>
 </html>
