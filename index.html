@@ -3,48 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Project Food</title>
+    <title>Project Food | Smart Kitchen</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #46b8bc; --bg: #f7f9fb; --card: #ffffff; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 100px; color: #2d3436; }
-        .header { background: linear-gradient(135deg, var(--primary), #3498db); color: white; padding: 30px 20px 45px; border-radius: 0 0 30px 30px; }
-        .search-container { padding: 0 20px; margin-top: -20px; }
-        .search-input { width: 100%; padding: 15px; border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.08); box-sizing: border-box; outline: none; }
+        :root { 
+            --primary: #46b8bc; 
+            --primary-dark: #3a9ea1;
+            --bg: #f7f9fb; 
+            --card: #ffffff; 
+            --text-main: #2d3436;
+            --text-light: #636e72;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            padding-bottom: 110px; 
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Шапка */
+        .header { 
+            background: linear-gradient(135deg, var(--primary), #3498db); 
+            color: white; 
+            padding: 40px 25px 50px; 
+            border-radius: 0 0 35px 35px;
+            box-shadow: 0 10px 20px rgba(70,184,188,0.15);
+        }
         
-        .category-row { display: flex; overflow-x: auto; gap: 15px; padding: 10px 20px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
+
+        /* Поиск */
+        .search-container { padding: 0 20px; margin-top: -28px; }
+        .search-input { 
+            width: 100%; 
+            padding: 18px 25px; 
+            border-radius: 20px; 
+            border: none; 
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08); 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            outline: none;
+            font-family: inherit;
+        }
+
+        /* Контейнеры секций */
+        .section { display: none; animation: fadeIn 0.3s ease-out; }
+        .section.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Категории и Свайп */
+        .category-title { 
+            font-weight: 700; 
+            padding: 25px 25px 10px; 
+            color: var(--text-light); 
+            font-size: 13px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        .category-row { 
+            display: flex; 
+            overflow-x: auto; 
+            gap: 18px; 
+            padding: 10px 25px 20px; 
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; 
+        }
         .category-row::-webkit-scrollbar { display: none; }
-        
-        .card { flex: 0 0 75%; background: white; border-radius: 22px; padding: 15px; scroll-snap-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 2px solid transparent; transition: 0.3s; position: relative; }
-        .selected-card { border-color: var(--primary); background: #f0fbfc; }
-        
-        .badge { position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .selected-card .badge { background: var(--primary); border-color: var(--primary); color: white; }
 
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 25px; border-top: 1px solid #eee; z-index: 100; }
-        .nav-item { background: none; border: none; color: #b2bec3; font-size: 11px; font-weight: 600; cursor: pointer; }
+        /* Карточка рецепта */
+        .card { 
+            flex: 0 0 78%; 
+            background: var(--card); 
+            border-radius: 28px; 
+            padding: 22px; 
+            scroll-snap-align: center; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04); 
+            border: 2px solid transparent; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .selected-card { 
+            border-color: var(--primary); 
+            background: #f0fbfc; 
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(70,184,188,0.15);
+        }
+
+        .card-icon { font-size: 40px; margin-bottom: 15px; display: block; }
+        .card-name { font-weight: 600; font-size: 17px; margin-bottom: 8px; line-height: 1.3; }
+        .card-info { color: var(--primary); font-size: 14px; font-weight: 600; }
+
+        /* Чекбокс на карточке */
+        .select-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .selected-card .select-indicator {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Нижняя навигация */
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            background: rgba(255,255,255,0.95); 
+            backdrop-filter: blur(10px);
+            display: flex; 
+            justify-content: space-around; 
+            padding: 15px 0 35px; 
+            border-top: 1px solid rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .nav-item { 
+            background: none; 
+            border: none; 
+            color: #b2bec3; 
+            font-size: 12px; 
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            transition: 0.3s;
+        }
+
         .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 24px; font-style: normal; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
-        .modal-content { position: absolute; bottom: 0; background: white; width: 100%; border-radius: 30px 30px 0 0; padding: 25px; box-sizing: border-box; max-height: 85%; overflow-y: auto; }
-        .checked-item { opacity: 0.4; text-decoration: line-through; }
+        /* Модальное окно */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            z-index: 1000; 
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content { 
+            position: absolute; 
+            bottom: 0; 
+            background: white; 
+            width: 100%; 
+            border-radius: 35px 35px 0 0; 
+            padding: 30px 25px; 
+            box-sizing: border-box; 
+            max-height: 85%; 
+            overflow-y: auto;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+        }
+
+        .modal-bar {
+            width: 40px; height: 5px; background: #e0e0e0; border-radius: 10px;
+            margin: -10px auto 25px;
+        }
+
+        /* Список покупок */
+        .cart-card {
+            background: white;
+            padding: 18px 22px;
+            border-radius: 22px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: 0.2s;
+        }
+        .checked-item { opacity: 0.4; text-decoration: line-through; transform: scale(0.98); }
     </style>
 </head>
 <body>
-    <div class="header"><h2 style="margin:0">Project Food</h2></div>
-    <div class="search-container"><input type="text" class="search-input" placeholder="Найти рецепт..." oninput="search(this.value)"></div>
 
-    <div id="recipe-list-section"><div id="categories-container"></div></div>
-    <div id="cart-list-section" style="display:none;"><div id="cart-list"></div></div>
+    <div class="header">
+        <h1>Project Food</h1>
+        <p>Ваше меню на сегодня</p>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Найти любимое блюдо..." oninput="search(this.value)">
+    </div>
+
+    <div id="recipe-list-section" class="section active">
+        <div id="action-btn-container" style="margin-top: 25px;"></div>
+        <div id="categories-container"></div>
+    </div>
+    
+    <div id="cart-list-section" class="section">
+        <div id="cart-list" style="padding: 20px;"></div>
+    </div>
 
     <nav class="bottom-nav">
-        <button class="nav-item active" id="btn-recipes" onclick="switchTab('recipes')"><div style="font-size:18px">🍴</div>Меню</button>
-        <button class="nav-item" id="btn-cart" onclick="switchTab('cart')"><div style="font-size:18px">🛒</div>Покупки</button>
+        <button class="nav-item active" id="btn-recipes" onclick="switchTab('recipes')">
+            <i>🍴</i>
+            <span>Меню</span>
+        </button>
+        <button class="nav-item" id="btn-cart" onclick="switchTab('cart')">
+            <i>🛒</i>
+            <span>Покупки</span>
+        </button>
     </nav>
 
     <div id="recipe-modal" class="modal" onclick="if(event.target == this) closeModal()">
-        <div class="modal-content"><div id="modal-body"></div></div>
+        <div class="modal-content">
+            <div class="modal-bar"></div>
+            <div id="modal-body"></div>
+        </div>
     </div>
 
     <script src="app.js"></script>
