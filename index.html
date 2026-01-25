@@ -5,32 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Project Food</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍲</text></svg>">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #46b8bc; --bg: #f7f9fb; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 110px; color: #2d3436; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 110px; color: #2d3436; overflow-x: hidden; }
         .header { background: linear-gradient(135deg, var(--primary), #3498db); color: white; padding: 40px 25px 50px; border-radius: 0 0 35px 35px; }
         .search-container { padding: 0 20px; margin-top: -28px; }
         .search-input { width: 100%; padding: 18px; border-radius: 20px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.08); box-sizing: border-box; outline: none; font-size: 16px; }
+        
         .category-title { font-weight: 700; padding: 25px 25px 10px; color: #636e72; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .category-row { display: flex; overflow-x: auto; gap: 15px; padding: 10px 25px; scrollbar-width: none; }
+
+        /* НАСТРОЙКИ СВАЙПА */
+        .category-row { 
+            display: flex; 
+            overflow-x: auto; 
+            gap: 15px; 
+            padding: 10px 25px 20px; 
+            scroll-snap-type: x mandatory; /* Включает прилипание по горизонтали */
+            -webkit-overflow-scrolling: touch; /* Плавность на iOS */
+            scrollbar-width: none; 
+        }
         .category-row::-webkit-scrollbar { display: none; }
-        .card { flex: 0 0 75%; background: white; border-radius: 28px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); border: 2px solid transparent; position: relative; transition: 0.3s; }
-        .selected-card { border-color: var(--primary); background: #f0fbfc; transform: scale(0.98); }
+
+        .card { 
+            flex: 0 0 80%; /* Карточка занимает 80% ширины экрана */
+            background: white; 
+            border-radius: 28px; 
+            padding: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04); 
+            border: 2px solid transparent; 
+            position: relative; 
+            scroll-snap-align: center; /* Центрирует карточку при остановке свайпа */
+            transition: transform 0.2s;
+        }
+        
+        .selected-card { border-color: var(--primary); background: #f0fbfc; }
         .select-indicator { position: absolute; top: 15px; right: 15px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 14px; }
         .selected-card .select-indicator { background: var(--primary); border-color: var(--primary); color: white; }
+        
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 35px; border-top: 1px solid #eee; z-index: 100; }
         .nav-item { background: none; border: none; color: #b2bec3; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .nav-item.active { color: var(--primary); }
-        .main-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 18px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 15px rgba(70,184,188,0.2); }
-        .cart-card { background: white; padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .checked-item { opacity: 0.4; text-decoration: line-through; filter: grayscale(1); }
+        .main-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 18px; font-weight: bold; font-size: 16px; }
+        .cart-card { background: white; padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .checked-item { opacity: 0.4; text-decoration: line-through; }
     </style>
 </head>
 <body>
-    <div class="header"><h1>Project Food</h1><p>Ваше меню на сегодня</p></div>
+    <div class="header"><h1>Project Food</h1><p>Листайте и выбирайте</p></div>
     <div class="search-container"><input type="text" class="search-input" placeholder="Найти блюдо..." oninput="search(this.value)"></div>
     
     <div id="recipe-list-section">
