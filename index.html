@@ -11,51 +11,63 @@
         :root { --primary: #46b8bc; --bg: #f7f9fb; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 110px; color: #2d3436; }
         
-        .header { background: linear-gradient(135deg, var(--primary), #3498db); color: white; padding: 40px 25px 50px; border-radius: 0 0 35px 35px; }
+        .header { background: linear-gradient(135deg, var(--primary), #3498db); color: white; padding: 40px 25px 50px; border-radius: 0 0 35px 35px; position: relative; }
+        .header h1 { margin: 0; font-size: 24px; }
+        
+        /* Кнопка открытия всех продуктов */
+        .all-ings-btn { position: absolute; top: 40px; right: 25px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 15px; border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; backdrop-filter: blur(5px); }
+
         .search-container { padding: 0 20px; margin-top: -28px; }
         .search-input { width: 100%; padding: 18px; border-radius: 20px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.08); box-sizing: border-box; outline: none; font-size: 16px; }
         
-        .category-title { font-weight: 700; padding: 25px 25px 10px; color: #636e72; font-size: 12px; text-transform: uppercase; }
+        /* Стили для списка ингредиентов (продуктов) */
+        .ing-item { background: white; padding: 15px 20px; border-radius: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .ing-item b { text-transform: capitalize; }
+        .ing-price { color: var(--primary); font-weight: 700; }
 
-        /* Свайп-контейнер */
         .category-row { display: flex; overflow-x: auto; gap: 15px; padding: 10px 25px 20px; scroll-snap-type: x mandatory; scrollbar-width: none; }
         .category-row::-webkit-scrollbar { display: none; }
 
-        /* Улучшенная карточка */
-        .card { 
-            flex: 0 0 82%; background: white; border-radius: 30px; padding: 22px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.04); border: 2px solid transparent; 
-            position: relative; scroll-snap-align: center; 
-        }
+        .card { flex: 0 0 82%; background: white; border-radius: 30px; padding: 22px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); border: 2px solid transparent; position: relative; scroll-snap-align: center; }
         .selected-card { border-color: var(--primary); background: #f0fbfc; }
         
-        .card-meta { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee; font-size: 13px; color: #636e72; }
-        .price-tag { color: var(--primary); font-weight: 700; font-size: 16px; }
-
-        /* Модальное окно (Шторка с ингредиентами) */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { position: absolute; bottom: 0; background: white; width: 100%; border-radius: 35px 35px 0 0; padding: 30px 25px; box-sizing: border-box; max-height: 80%; overflow-y: auto; }
-        .modal-close { float: right; font-size: 24px; cursor: pointer; color: #b2bec3; }
+        .modal-content { position: absolute; bottom: 0; background: white; width: 100%; border-radius: 35px 35px 0 0; padding: 30px 25px; box-sizing: border-box; max-height: 85%; overflow-y: auto; }
 
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 35px; border-top: 1px solid #eee; }
         .nav-item { background: none; border: none; color: #b2bec3; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .nav-item.active { color: var(--primary); }
         
-        .main-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 18px; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
-        .cart-card { background: white; padding: 18px; border-radius: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .checked-item { opacity: 0.4; text-decoration: line-through; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .main-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 18px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header"><h1>Project Food</h1><p>Выбирайте блюда по вкусу и бюджету</p></div>
-    <div class="search-container"><input type="text" class="search-input" placeholder="Найти рецепт..." oninput="search(this.value)"></div>
+    <div class="header">
+        <h1>Project Food</h1>
+        <button class="all-ings-btn" onclick="switchTab('all-ingredients')">🛒 База продуктов</button>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Найти..." oninput="search(this.value)">
+    </div>
     
-    <div id="recipe-list-section">
+    <div id="recipe-list-section" class="section active">
         <div id="action-btn-container" style="padding: 20px 20px 0;"></div>
         <div id="categories-container"></div>
     </div>
     
-    <div id="cart-list-section" style="display:none;"><div id="cart-list" style="padding: 20px;"></div></div>
+    <div id="cart-list-section" class="section">
+        <div id="cart-list" style="padding: 20px;"></div>
+    </div>
+
+    <div id="all-ingredients-section" class="section">
+        <div style="padding: 25px;">
+            <h2 style="margin-top:0;">Все ингредиенты</h2>
+            <div id="ingredients-full-list"></div>
+        </div>
+    </div>
 
     <nav class="bottom-nav">
         <button class="nav-item active" id="btn-recipes" onclick="switchTab('recipes')"><span>🍴</span>Меню</button>
@@ -63,10 +75,7 @@
     </nav>
 
     <div id="recipe-modal" class="modal" onclick="if(event.target == this) closeModal()">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">✕</span>
-            <div id="modal-body"></div>
-        </div>
+        <div class="modal-content"><div id="modal-body"></div></div>
     </div>
 
     <script src="app.js"></script>
