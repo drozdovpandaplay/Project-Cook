@@ -5,36 +5,29 @@ const _supabase = supabase.createClient(SB_URL, SB_KEY);
 let allRecipes = [];
 let selectedRecipes = new Set();
 
-// 1. ЗАГРУЗКА РЕЦЕПТОВ
 async function loadRecipes() {
-    const { data, error } = await _supabase.from('recipes').select('*').order('category');
-    if (error) {
-        console.error("Ошибка загрузки:", error);
-        return;
+    try {
+        const { data, error } = await _supabase.from('recipes').select('*').order('category');
+        if (error) throw error;
+        allRecipes = data || [];
+        renderCategorized(allRecipes);
+    } catch (e) {
+        console.error("Ошибка загрузки данных:", e.message);
     }
-    allRecipes = data || [];
-    renderCategorized(allRecipes);
 }
 
-// 2. ОТРИСОВКА МЕНЮ
 function renderCategorized(list) {
     const container = document.getElementById('categories-container');
-    if (!container) return;
-    container.innerHTML = '';
+    const btnBox = document.getElementById('action-btn-container');
+    if (!container || !btnBox) return;
 
-    // Кнопка действия (появляется только если выбраны блюда)
-    if (selectedRecipes.size > 0) {
-        const actionBtn = document.createElement('div');
-        actionBtn.style.padding = '0 20px 20px';
-        actionBtn.innerHTML = `
-            <button onclick="sendSelectedToCart()" style="width:100%; padding:18px; background:#46b8bc; color:white; border:none; border-radius:18px; font-weight:bold; font-size:16px; box-shadow: 0 8px 20px rgba(70,184,188,0.3);">
-                🛒 Добавить в покупки (${selectedRecipes.size})
-            </button>`;
-        container.appendChild(actionBtn);
-    }
+    container.innerHTML = '';
+    btnBox.innerHTML = selectedRecipes.size > 0 
+        ? `<button class="main-btn" onclick="sendToCart()">🛒 Добавить в покупки (${selectedRecipes.size})</button>` 
+        : '';
 
     const groups = list.reduce((acc, r) => {
-        const cat = r.category || 'Другое';
+        const cat = r.category || 'Прочее';
         if (!acc[cat]) acc[cat] = [];
         acc[cat].push(r);
         return acc;
@@ -43,46 +36,81 @@ function renderCategorized(list) {
     for (const [category, items] of Object.entries(groups)) {
         const section = document.createElement('div');
         section.innerHTML = `
-            <div style="font-weight:600; padding:10px 20px; color:#888; font-size:12px; text-transform:uppercase;">${category}</div>
-            <div class="category-row" style="display:flex; overflow-x:auto; gap:15px; padding:10px 20px; scroll-snap-type:x mandatory;">
-                ${items.map(r => `
-                    <div class="card ${selectedRecipes.has(r.id) ? 'selected-card' : ''}" 
-                         onclick="toggleRecipeSelect(${r.id})" 
-                         style="flex:0 0 75%; background:white; padding:20px; border-radius:25px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border:2px solid ${selectedRecipes.has(r.id) ? '#46b8bc' : 'transparent'}; scroll-snap-align:center;">
-                        <div style="font-size:35px; margin-bottom:10px;">🍲</div>
-                        <div style="font-weight:bold; font-size:16px; margin-bottom:5px;">${r.name}</div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="color:#46b8bc; font-size:14px; font-weight:600;">${r.kcal || 0} ккал</span>
-                            <button onclick="event.stopPropagation(); openRecipeInfo(${r.id})" style="background:none; border:none; color:gray; font-size:12px; text-decoration:underline;">Состав</button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>`;
+            <div class="category-title">${category}</div>
+            <div class="category-row">${items.map(r => `
+                <div class="card ${selectedRecipes.has(r.id) ? 'selected-card' : ''}" onclick="toggleSelect(${r.id})">
+                    <div class="select-indicator">${selectedRecipes.has(r.id) ? '✓' : '+'}</div>
+                    <span class="card-icon">🍲</span>
+                    <div class="card-name">${r.name}</div>
+                    <div class="card-info">${r.kcal || 0} ккал</div>
+                </div>`).join('')}</div>`;
         container.appendChild(section);
     }
 }
 
-// 3. ЛОГИКА ВЫБОРА
-function toggleRecipeSelect(id) {
+function toggleSelect(id) {
     selectedRecipes.has(id) ? selectedRecipes.delete(id) : selectedRecipes.add(id);
     renderCategorized(allRecipes);
 }
 
-// 4. ПОДРОБНОСТИ РЕЦЕПТА (С РАСЧЕТОМ ГРАММ)
-async function openRecipeInfo(id) {
-    const r = allRecipes.find(x => x.id === id);
-    const modal = document.getElementById('recipe-modal');
-    modal.style.display = 'block';
+async function sendToCart() {
+    const toAdd = allRecipes.filter(r => selectedRecipes.has(r.id));
+    const payload = toAdd.map(r => ({
+        recipe_name: r.name,
+        items: r.ings ? r.ings.split(',').map(i => i.trim().toLowerCase()) : []
+    }));
+
+    const { error } = await _supabase.from('cart').insert(payload);
+    if (error) {
+        alert("Ошибка! Проверь настройки RLS в Supabase: " + error.message);
+    } else {
+        selectedRecipes.clear();
+        switchTab('cart');
+    }
+}
+
+async function loadCart() {
+    const container = document.getElementById('cart-list');
+    container.innerHTML = '<p style="text-align:center; padding:50px;">Загрузка...</p>';
+    const { data } = await _supabase.from('cart').select('*');
     
-    const ings = r.ings ? r.ings.split(',').map(i => i.trim().toLowerCase()) : [];
-    const amounts = r.amounts ? r.amounts.split(',').map(a => parseFloat(a)) : new Array(ings.length).fill(100);
-    
-    const { data: prods } = await _supabase.from('products').select('name, price').in('name', ings);
-    
-    let total = 0;
-    const html = ings.map((ing, idx) => {
-        const p = prods?.find(item => item.name.toLowerCase() === ing);
-        const weight = amounts[idx] || 100;
-        const price = p ? Math.round((p.price / 1000) * weight) : 0;
-        total += price;
-        return `<div style
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:100px; color:#b2bec3;">Список покупок пуст</p>';
+        return;
+    }
+
+    let allIngs = [];
+    data.forEach(d => { if(d.items) allIngs = allIngs.concat(d.items); });
+    const counts = allIngs.reduce((acc, v) => { acc[v] = (acc[v] || 0) + 1; return acc; }, {});
+
+    let html = `<button onclick="clearCart()" class="main-btn" style="background:#ff7675; margin-bottom:20px;">Очистить список</button>`;
+    Object.entries(counts).forEach(([name, count]) => {
+        html += `<div class="cart-card" onclick="this.classList.toggle('checked-item')">
+            <b style="text-transform:capitalize;">${name}</b>
+            <span style="color:#b2bec3;">${count} шт.</span>
+        </div>`;
+    });
+    container.innerHTML = html;
+}
+
+function switchTab(tab) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('btn-' + tab).classList.add('active');
+    document.getElementById(tab + '-list-section').classList.add('active');
+    if(tab === 'recipes') loadRecipes();
+    if(tab === 'cart') loadCart();
+}
+
+async function clearCart() {
+    if(confirm("Удалить всё?")) {
+        await _supabase.from('cart').delete().neq('id', 0);
+        loadCart();
+    }
+}
+
+function search(q) {
+    renderCategorized(allRecipes.filter(r => r.name.toLowerCase().includes(q.toLowerCase())));
+}
+
+document.addEventListener('DOMContentLoaded', loadRecipes);
