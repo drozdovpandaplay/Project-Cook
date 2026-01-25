@@ -7,7 +7,7 @@ let selectedRecipes = new Set();
 
 async function loadRecipes() {
     const { data, error } = await _supabase.from('recipes').select('*').order('category');
-    if (error) return console.error("Ошибка загрузки:", error);
+    if (error) return console.error("Ошибка:", error);
     allRecipes = data || [];
     renderCategorized(allRecipes);
 }
@@ -36,9 +36,9 @@ function renderCategorized(list) {
             <div class="category-row">${items.map(r => `
                 <div class="card ${selectedRecipes.has(r.id) ? 'selected-card' : ''}" onclick="toggleSelect(${r.id})">
                     <div class="select-indicator">${selectedRecipes.has(r.id) ? '✓' : '+'}</div>
-                    <span style="font-size:40px; display:block; margin-bottom:10px;">🍲</span>
-                    <div style="font-weight:bold;">${r.name}</div>
-                    <div style="color:var(--primary); font-size:14px; margin-top:5px;">${r.kcal || 0} ккал</div>
+                    <span style="font-size:45px; display:block; margin-bottom:15px;">🍲</span>
+                    <div style="font-weight:700; font-size:16px;">${r.name}</div>
+                    <div style="color:var(--primary); font-size:14px; margin-top:8px; font-weight:600;">${r.kcal || 0} ккал</div>
                 </div>`).join('')}</div>`;
         container.appendChild(section);
     }
@@ -49,10 +49,8 @@ function toggleSelect(id) {
     renderCategorized(allRecipes);
 }
 
-// ФУНКЦИЯ ДОБАВЛЕНИЯ В ВАШУ ТАБЛИЦУ (dish_name, item_name)
 async function sendToCart() {
     const toAdd = allRecipes.filter(r => selectedRecipes.has(r.id));
-    
     const payload = toAdd.map(r => ({
         dish_name: String(r.name),
         item_name: r.ings ? String(r.ings) : "", 
@@ -60,50 +58,35 @@ async function sendToCart() {
     }));
 
     const { error } = await _supabase.from('cart').insert(payload);
-
-    if (error) {
-        alert("Ошибка сохранения: " + error.message);
-    } else {
+    if (error) alert("Ошибка: " + error.message);
+    else {
         selectedRecipes.clear();
-        alert("Блюда успешно добавлены в список!");
+        alert("Добавлено в покупки!");
         switchTab('cart');
     }
 }
 
-// ФУНКЦИЯ ЗАГРУЗКИ ИЗ ВАШЕЙ ТАБЛИЦЫ
 async function loadCart() {
     const container = document.getElementById('cart-list');
-    container.innerHTML = '<p style="text-align:center; padding:50px;">Загрузка списка...</p>';
-
-    const { data, error } = await _supabase.from('cart').select('*');
+    container.innerHTML = '<p style="text-align:center; padding:50px;">Загрузка...</p>';
+    const { data } = await _supabase.from('cart').select('*');
     
-    if (error || !data || data.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:100px; color:#b2bec3;">Список покупок пуст</p>';
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:100px; color:#b2bec3;">Список пуст</p>';
         return;
     }
 
-    let allItems = [];
-    data.forEach(row => {
-        if (row.item_name) {
-            const splitIngs = row.item_name.split(',').map(i => i.trim().toLowerCase());
-            allItems = allItems.concat(splitIngs);
-        }
-    });
-
-    const counts = allItems.reduce((acc, v) => {
-        acc[v] = (acc[v] || 0) + 1;
-        return acc;
-    }, {});
+    let allIngs = [];
+    data.forEach(row => { if (row.item_name) allIngs = allIngs.concat(row.item_name.split(',').map(i => i.trim().toLowerCase())); });
+    const counts = allIngs.reduce((acc, v) => { acc[v] = (acc[v] || 0) + 1; return acc; }, {});
 
     let html = `<button onclick="clearCart()" class="main-btn" style="background:#ff7675; margin-bottom:20px;">Очистить всё</button>`;
-
     Object.entries(counts).forEach(([name, count]) => {
         html += `<div class="cart-card" onclick="this.classList.toggle('checked-item')">
             <span style="text-transform:capitalize; font-weight:600;">${name}</span>
-            <span style="color:#b2bec3;">${count} уп.</span>
+            <span style="color:#b2bec3;">${count} шт.</span>
         </div>`;
     });
-
     container.innerHTML = html;
 }
 
@@ -117,9 +100,8 @@ function switchTab(tab) {
 }
 
 async function clearCart() {
-    if(confirm("Удалить весь список покупок?")) {
-        const { error } = await _supabase.from('cart').delete().neq('id', 0);
-        if (error) alert("Ошибка при удалении: " + error.message);
+    if(confirm("Удалить список?")) {
+        await _supabase.from('cart').delete().neq('id', 0);
         loadCart();
     }
 }
