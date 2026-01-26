@@ -11,29 +11,31 @@
 
     <div class="header">
         <h1>Project Food</h1>
-        <input type="text" id="searchInput" class="search-box" placeholder="Поиск среди 100 рецептов...">
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-box" placeholder="Поиск среди рецептов...">
+        </div>
     </div>
 
-    <div id="recipe-list-section" class="section active">
-        <div id="categories-container" class="menu-grid"></div>
+    <div class="container">
+        <div id="recipe-grid" class="menu-grid">
+            </div>
     </div>
 
     <div id="recipe-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeRecipe()">&times;</span>
-            <div id="recipe-detail-content">
-                </div>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
         </div>
     </div>
 
     <div id="global-timer" class="timer-float" style="display: none;">
         <span id="timer-count">00:00</span>
-        <button onclick="stopTimer()">🛑</button>
+        <button onclick="stopTimer()" class="timer-stop">🛑</button>
     </div>
 
     <nav class="bottom-nav">
-        <button onclick="location.reload()" class="nav-item active">🍴 МЕНЮ</button>
-        <button onclick="alert('Скоро!')" class="nav-item">🛒 КОРЗИНА</button>
+        <div class="nav-item active" onclick="location.reload()">🍴 Меню</div>
+        <div class="nav-item" onclick="alert('Раздел покупок в разработке')">🛒 Корзина</div>
     </nav>
 
     <script src="app.js"></script>
