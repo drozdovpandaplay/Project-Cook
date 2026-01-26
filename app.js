@@ -4,9 +4,35 @@ const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
 let allRecipes = [];
 
-async function loadData() {
+async function init() {
     const { data } = await _supabase.from('recipes').select('*').order('name');
     allRecipes = data || [];
+}
+
+function filterByCategory(cat) {
+    const filtered = allRecipes.filter(r => r.category === cat);
+    document.getElementById('main-categories').style.display = 'none';
+    document.getElementById('recipe-grid').style.display = 'grid';
+    document.getElementById('search-bar').style.display = 'flex';
+    
+    // Красивый заголовок
+    let titles = { 'Суп': 'Супы', 'Второе блюдо': 'Вторые блюда', 'Салат': 'Салаты', 'Гарнир': 'Гарниры', 'Завтрак': 'Завтраки', 'Десерт': 'Десерты', 'Напиток': 'Напитки' };
+    document.getElementById('page-title').innerText = titles[cat] || cat;
+
+    const grid = document.getElementById('recipe-grid');
+    grid.innerHTML = filtered.map(r => `
+        <div class="card" onclick="openRecipe(${r.id})">
+            <img src="${r.image_url || 'https://via.placeholder.com/150'}" class="card-img" onerror="this.src='https://via.placeholder.com/150'">
+            <div style="padding:10px; font-size:13px; font-weight:bold;">${r.name}</div>
+        </div>
+    `).join('');
+}
+
+function showCategories() {
+    document.getElementById('main-categories').style.display = 'grid';
+    document.getElementById('recipe-grid').style.display = 'none';
+    document.getElementById('search-bar').style.display = 'none';
+    document.getElementById('page-title').innerText = 'Project Food';
 }
 
 function switchSection(name, el) {
@@ -19,49 +45,20 @@ function switchSection(name, el) {
     } else {
         document.getElementById(name + '-section').style.display = 'block';
         document.getElementById('search-bar').style.display = 'none';
-        if (name === 'inventory') renderInventory();
-        if (name === 'shopping') renderShopping();
     }
 }
 
-function filterByCategory(cat) {
-    const filtered = allRecipes.filter(r => r.category === cat);
-    document.getElementById('main-categories').style.display = 'none';
-    document.getElementById('recipe-grid').style.display = 'grid';
-    document.getElementById('search-bar').style.display = 'flex';
-    document.getElementById('page-title').innerText = cat + 'и';
-    
-    const grid = document.getElementById('recipe-grid');
-    grid.innerHTML = filtered.map(r => `
-        <div class="card" onclick="openRecipe(${r.id})">
-            <img src="${r.image_url || 'https://via.placeholder.com/150'}" class="card-img">
-            <div class="padding"><small>${r.name}</small></div>
-        </div>
-    `).join('');
+function openRecipe(id) {
+    const r = allRecipes.find(x => x.id === id);
+    const body = document.getElementById('modal-body');
+    body.innerHTML = `
+        <h3>${r.name}</h3>
+        <p><strong>Ингредиенты:</strong><br>${r.ings || 'Не указаны'}</p>
+        <button onclick="closeModal()" style="width:100%; padding:10px; margin-top:10px; border:none; border-radius:10px; background:var(--primary); color:white;">Понятно</button>
+    `;
+    document.getElementById('recipe-modal').style.display = 'block';
 }
 
-function showCategories() {
-    document.getElementById('main-categories').style.display = 'grid';
-    document.getElementById('recipe-grid').style.display = 'none';
-    document.getElementById('search-bar').style.display = 'none';
-    document.getElementById('page-title').innerText = 'Project Food';
-}
+function closeModal() { document.getElementById('recipe-modal').style.display = 'none'; }
 
-async function renderShopping() {
-    const { data } = await _supabase.from('shopping_list').select('*');
-    const container = document.getElementById('shopping-list-container');
-    container.innerHTML = data.map(i => `
-        <div class="list-item ${i.checked ? 'checked' : ''}" onclick="toggleShop(${i.id}, ${i.checked})">
-            <span>${i.name}</span>
-            <span>${i.checked ? '✅' : '⬜'}</span>
-        </div>
-    `).join('');
-}
-
-async function toggleShop(id, current) {
-    await _supabase.from('shopping_list').update({ checked: !current }).eq('id', id);
-    renderShopping();
-}
-
-// Загрузка данных при старте
-loadData();
+init();
