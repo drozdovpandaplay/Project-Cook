@@ -42,3 +42,28 @@ body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg);
 .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; }
 .nav-item { font-size: 12px; color: #b2bec3; font-weight: bold; cursor: pointer; }
 .nav-item.active { color: var(--primary); }
+.section { animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.list-item {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.list-item.checked {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.unit-tag {
+    background: #eee;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+}
