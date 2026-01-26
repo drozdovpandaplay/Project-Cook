@@ -37,7 +37,23 @@
         <div class="nav-item active" onclick="location.reload()">🍴 Меню</div>
         <div class="nav-item" onclick="alert('Раздел покупок в разработке')">🛒 Корзина</div>
     </nav>
+<div id="inventory-section" class="section" style="display: none; padding: 20px;">
+    <h2>Мои продукты</h2>
+    <div id="inventory-list"></div>
+    <button class="btn-main" onclick="addInventoryItem()">+ Добавить продукт</button>
+</div>
 
+<div id="shopping-section" class="section" style="display: none; padding: 20px;">
+    <h2>Список покупок</h2>
+    <div id="shopping-list-container"></div>
+    <button class="btn-main" style="background: var(--accent)" onclick="clearChecked()">Очистить купленное</button>
+</div>
+
+<nav class="bottom-nav">
+    <div class="nav-item active" onclick="switchSection('menu')">🍴 Меню</div>
+    <div class="nav-item" onclick="switchSection('inventory')">📦 Склад</div>
+    <div class="nav-item" onclick="switchSection('shopping')">🛒 Корзина</div>
+</nav>
     <script src="app.js"></script>
 </body>
 </html>
