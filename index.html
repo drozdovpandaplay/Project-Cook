@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Project Food Ultra</title>
+    <title>Project Food Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="header">
         <h1 id="page-title">Project Food</h1>
         <div id="search-bar" class="search-container" style="display: none;">
@@ -31,33 +30,25 @@
             <div id="recipe-grid" class="menu-grid" style="display: none;"></div>
         </div>
 
-        <div id="calendar-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>📅 План на неделю</h2>
-                <div id="weekly-planner"></div>
-            </div>
+        <div id="calendar-section" class="section" style="display: none; padding: 15px;">
+            <h2>📅 План на неделю</h2>
+            <div id="weekly-planner"></div>
         </div>
 
-        <div id="inventory-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>📦 Мой склад (Наличие)</h2>
-                <div id="inventory-list"></div>
-            </div>
+        <div id="inventory-section" class="section" style="display: none; padding: 15px;">
+            <h2>📦 Наличие дома</h2>
+            <div id="inventory-list"></div>
         </div>
 
-        <div id="shopping-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>🛒 Нужно купить</h2>
-                <div id="shopping-list-container"></div>
-            </div>
+        <div id="shopping-section" class="section" style="display: none; padding: 15px;">
+            <h2>🛒 Купить</h2>
+            <div id="shopping-list-container"></div>
         </div>
 
-        <div id="products-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>🍎 Все продукты (Цены)</h2>
-                <input type="text" class="edit-input" placeholder="Поиск продукта..." oninput="renderProducts(this.value)">
-                <div id="products-list" style="margin-top:15px"></div>
-            </div>
+        <div id="products-section" class="section" style="display: none; padding: 15px;">
+            <h2>🍎 Справочник продуктов</h2>
+            <input type="text" class="edit-input" placeholder="Поиск в базе..." oninput="renderProducts(this.value)">
+            <div id="products-list" style="margin-top: 15px;"></div>
         </div>
     </div>
 
