@@ -30,14 +30,24 @@
 
         <div id="recipe-grid" class="menu-grid section" style="display: none;"></div>
 
-        <div id="inventory-section" class="section" style="display: none; padding: 20px;">
-            <h2>📦 Мой склад</h2>
-            <div id="inventory-list"></div>
+        <div id="inventory-section" class="section" style="display: none;">
+            <div class="padding">
+                <h2>📦 Мой склад</h2>
+                <div class="add-inventory-form">
+                    <input type="text" id="inv-name" placeholder="Название" class="edit-input">
+                    <input type="number" id="inv-amount" placeholder="Кол-во" class="edit-input">
+                    <button class="btn-main" onclick="addInventoryItem()">Добавить</button>
+                </div>
+                <div id="inventory-list" style="margin-top:20px"></div>
+            </div>
         </div>
 
-        <div id="shopping-section" class="section" style="display: none; padding: 20px;">
-            <h2>🛒 Список покупок</h2>
-            <div id="shopping-list-container"></div>
+        <div id="shopping-section" class="section" style="display: none;">
+            <div class="padding">
+                <h2>🛒 Список покупок</h2>
+                <div id="shopping-list-container"></div>
+                <button class="btn-main" style="background:var(--accent)" onclick="clearCheckedItems()">Удалить купленное</button>
+            </div>
         </div>
     </div>
 
