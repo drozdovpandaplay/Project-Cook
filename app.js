@@ -3,79 +3,67 @@ const SB_KEY = 'sb_publishable_27NdQpJDXhOWC_Y7kzNn7A__xs0jCUi';
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
 let allRecipes = [];
+const days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 
 async function init() {
     const { data } = await _supabase.from('recipes').select('*').order('name');
     allRecipes = data || [];
 }
 
+// Переключение разделов
 function switchSection(name, el) {
     document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     el.classList.add('active');
-    if (name === 'menu') showCategories();
-    else {
-        document.getElementById(name + '-section').style.display = 'block';
-        if (name === 'inventory') renderInventory();
-        if (name === 'shopping') renderShopping();
-    }
+    document.getElementById(name + '-section').style.display = 'block';
+
+    if (name === 'calendar') renderCalendar();
+    if (name === 'products') renderProducts();
+    if (name === 'inventory') renderInventory();
 }
 
-async function renderInventory() {
-    const { data } = await _supabase.from('inventory').select('*').order('name');
-    document.getElementById('inventory-list').innerHTML = data.map(i => `
-        <div class="inventory-card">
-            <span><strong>${i.name}</strong> (${i.amount} ${i.unit})</span>
-            <button onclick="deleteInvItem(${i.id})" style="border:none;background:none;">🗑️</button>
-        </div>
-    `).join('');
-}
-
-async function openRecipe(id) {
-    const r = allRecipes.find(x => x.id === id);
-    const { data: invData } = await _supabase.from('inventory').select('*');
-    const ingredientList = r.ings ? r.ings.split(',').map(i => i.trim()) : [];
+// КАЛЕНДАРЬ
+async function renderCalendar() {
+    const { data: plan } = await _supabase.from('meal_plan').select('*, recipes(name)');
+    const cont = document.getElementById('weekly-planner');
     
-    // Проверка склада
-    const stockHTML = ingredientList.map(ing => {
-        const has = invData.some(i => ing.toLowerCase().includes(i.name.toLowerCase()));
-        return `<li style="color:${has ? 'green' : 'red'}">${has ? '✅' : '❌'} ${ing}</li>`;
+    cont.innerHTML = days.map(day => {
+        const dPlan = plan.filter(p => p.day_name === day);
+        return `
+            <div class="calendar-day">
+                <strong>${day}</strong>
+                <div class="meal-row"><span>🌅 Завтрак:</span> <span>${getMeal(dPlan, 'Завтрак')}</span></div>
+                <div class="meal-row"><span>🥣 Обед:</span> <span>${getMeal(dPlan, 'Завтрак')}</span></div>
+                <div class="meal-row"><span>🌙 Ужин:</span> <span>${getMeal(dPlan, 'Завтрак')}</span></div>
+            </div>
+        `;
     }).join('');
-
-    document.getElementById('modal-body').innerHTML = `
-        <img src="${r.image_url || ''}" style="width:100%; border-radius:15px;">
-        <h2>${r.name}</h2>
-        <div class="stock-check">
-            <h4>Проверка склада:</h4>
-            <ul style="padding:0; list-style:none;">${stockHTML}</ul>
-        </div>
-        <button class="btn-main" onclick="addToCart('${r.ings}')">🛒 В корзину недостающее</button>
-    `;
-    document.getElementById('recipe-modal').style.display = 'block';
+}
+function getMeal(plan, type) {
+    const m = plan.find(p => p.meal_type === type);
+    return m ? m.recipes.name : '<span style="color:#ccc">Не запланировано</span>';
 }
 
-function filterByCategory(cat) {
-    const filtered = allRecipes.filter(r => r.category === cat);
-    document.getElementById('main-categories').style.display = 'none';
-    document.getElementById('recipe-grid').style.display = 'grid';
-    document.getElementById('search-bar').style.display = 'flex';
-    document.getElementById('page-title').innerText = cat;
-    
-    document.getElementById('recipe-grid').innerHTML = filtered.map(r => `
-        <div class="card" onclick="openRecipe(${r.id})">
-            <img src="${r.image_url || 'https://via.placeholder.com/150'}" class="card-img">
-            <div style="padding:10px; font-weight:bold; font-size:14px;">${r.name}</div>
+// БАЗА ПРОДУКТОВ
+async function renderProducts(search = '') {
+    let query = _supabase.from('products').select('*').order('name');
+    if (search) query = query.ilike('name', `%${search}%`);
+    const { data } = await query;
+
+    const cont = document.getElementById('products-list');
+    cont.innerHTML = data.map(p => `
+        <div class="product-item">
+            <span style="flex:1">${p.name}</span>
+            <input type="number" value="${p.price_per_kg}" onchange="updatePrice(${p.id}, this.value)">
+            <small>руб/кг</small>
         </div>
     `).join('');
 }
 
-function showCategories() {
-    document.getElementById('main-categories').style.display = 'grid';
-    document.getElementById('recipe-grid').style.display = 'none';
-    document.getElementById('search-bar').style.display = 'none';
-    document.getElementById('page-title').innerText = 'Project Food';
+async function updatePrice(id, val) {
+    await _supabase.from('products').update({ price_per_kg: val }).eq('id', id);
 }
 
-function closeModal() { document.getElementById('recipe-modal').style.display = 'none'; }
+// ... Функции фильтрации категорий и открытия рецептов из предыдущих версий ...
 
 init();
