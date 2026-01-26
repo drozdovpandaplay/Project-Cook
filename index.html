@@ -3,22 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Project Food Pro</title>
+    <title>Project Food</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="header">
-        <h1>Project Food</h1>
-        <div class="search-container">
-            <input type="text" id="searchInput" class="search-box" placeholder="Поиск среди рецептов...">
+        <h1 id="main-title">Project Food</h1>
+        <div id="search-bar" class="search-container" style="display: none;">
+            <button onclick="showCategories()" class="btn-back">⬅</button>
+            <input type="text" id="searchInput" class="search-box" placeholder="Поиск...">
         </div>
     </div>
 
-    <div class="container">
-        <div id="recipe-grid" class="menu-grid">
-            </div>
+    <div id="section-menu" class="app-section">
+        <div id="main-categories" class="category-selection">
+            <div class="cat-card breakfast" onclick="filterByCategory('Завтрак')">☕ Завтраки</div>
+            <div class="cat-card lunch" onclick="filterByCategory('Обед')">🍲 Обеды</div>
+            <div class="cat-card dinner" onclick="filterByCategory('Ужин')">🥗 Ужины</div>
+            <div class="cat-card dessert" onclick="filterByCategory('Десерт')">🍰 Десерты</div>
+        </div>
+        <div id="recipe-grid" class="menu-grid" style="display: none;"></div>
+    </div>
+
+    <div id="section-inventory" class="app-section" style="display: none;">
+        <div class="padding">
+            <h2>📦 Мой склад</h2>
+            <div id="inventory-list" class="list-container"></div>
+            <button class="btn-main" onclick="addItem('inventory')">+ Добавить продукт</button>
+        </div>
+    </div>
+
+    <div id="section-shopping" class="app-section" style="display: none;">
+        <div class="padding">
+            <h2>🛒 Список покупок</h2>
+            <div id="shopping-list" class="list-container"></div>
+            <button class="btn-main" style="background:var(--accent)" onclick="clearChecked()">Очистить купленное</button>
+        </div>
     </div>
 
     <div id="recipe-modal" class="modal">
@@ -28,32 +50,12 @@
         </div>
     </div>
 
-    <div id="global-timer" class="timer-float" style="display: none;">
-        <span id="timer-count">00:00</span>
-        <button onclick="stopTimer()" class="timer-stop">🛑</button>
-    </div>
-
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="location.reload()">🍴 Меню</div>
-        <div class="nav-item" onclick="alert('Раздел покупок в разработке')">🛒 Корзина</div>
+        <div class="nav-item active" onclick="switchTab('menu', this)">🍴 Меню</div>
+        <div class="nav-item" onclick="switchTab('inventory', this)">📦 Склад</div>
+        <div class="nav-item" onclick="switchTab('shopping', this)">🛒 Корзина</div>
     </nav>
-<div id="inventory-section" class="section" style="display: none; padding: 20px;">
-    <h2>Мои продукты</h2>
-    <div id="inventory-list"></div>
-    <button class="btn-main" onclick="addInventoryItem()">+ Добавить продукт</button>
-</div>
 
-<div id="shopping-section" class="section" style="display: none; padding: 20px;">
-    <h2>Список покупок</h2>
-    <div id="shopping-list-container"></div>
-    <button class="btn-main" style="background: var(--accent)" onclick="clearChecked()">Очистить купленное</button>
-</div>
-
-<nav class="bottom-nav">
-    <div class="nav-item active" onclick="switchSection('menu')">🍴 Меню</div>
-    <div class="nav-item" onclick="switchSection('inventory')">📦 Склад</div>
-    <div class="nav-item" onclick="switchSection('shopping')">🛒 Корзина</div>
-</nav>
     <script src="app.js"></script>
 </body>
 </html>
