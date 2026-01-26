@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Project Food Pro</title>
+    <title>Project Food Ultra</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,41 +12,51 @@
     <div class="header">
         <h1 id="page-title">Project Food</h1>
         <div id="search-bar" class="search-container" style="display: none;">
-            <button onclick="showCategories()" class="btn-back">⬅ Назад</button>
-            <input type="text" id="searchInput" class="search-box" placeholder="Поиск блюда...">
+            <button onclick="showCategories()" class="btn-back">⬅</button>
+            <input type="text" id="searchInput" class="search-box" placeholder="Поиск...">
         </div>
     </div>
 
     <div class="container">
-        <div id="main-categories" class="category-selection section active">
-            <div class="cat-card breakfast" onclick="filterByCategory('Завтрак')">☕ Завтраки</div>
-            <div class="cat-card soup" onclick="filterByCategory('Суп')">🥣 Супы</div>
-            <div class="cat-card main-dish" onclick="filterByCategory('Второе блюдо')">🥩 Второе</div>
-            <div class="cat-card salad" onclick="filterByCategory('Салат')">🥗 Салаты</div>
-            <div class="cat-card side-dish" onclick="filterByCategory('Гарнир')">🍚 Гарниры</div>
-            <div class="cat-card dessert" onclick="filterByCategory('Десерт')">🍰 Десерты</div>
-            <div class="cat-card drink" onclick="filterByCategory('Напиток')">🍹 Напитки</div>
+        <div id="menu-section" class="section active">
+            <div id="main-categories" class="category-selection">
+                <div class="cat-card breakfast" onclick="filterByCategory('Завтрак')">☕ Завтраки</div>
+                <div class="cat-card soup" onclick="filterByCategory('Суп')">🥣 Супы</div>
+                <div class="cat-card main-dish" onclick="filterByCategory('Второе блюдо')">🥩 Второе</div>
+                <div class="cat-card salad" onclick="filterByCategory('Салат')">🥗 Салаты</div>
+                <div class="cat-card side-dish" onclick="filterByCategory('Гарнир')">🍚 Гарниры</div>
+                <div class="cat-card dessert" onclick="filterByCategory('Десерт')">🍰 Десерты</div>
+                <div class="cat-card drink" onclick="filterByCategory('Напиток')">🍹 Напитки</div>
+            </div>
+            <div id="recipe-grid" class="menu-grid" style="display: none;"></div>
         </div>
 
-        <div id="recipe-grid" class="menu-grid section" style="display: none;"></div>
+        <div id="calendar-section" class="section" style="display: none;">
+            <div class="padding">
+                <h2>📅 План на неделю</h2>
+                <div id="weekly-planner"></div>
+            </div>
+        </div>
 
         <div id="inventory-section" class="section" style="display: none;">
             <div class="padding">
-                <h2>📦 Мой склад</h2>
-                <div class="add-inventory-form">
-                    <input type="text" id="inv-name" placeholder="Название" class="edit-input">
-                    <input type="number" id="inv-amount" placeholder="Кол-во" class="edit-input">
-                    <button class="btn-main" onclick="addInventoryItem()">Добавить</button>
-                </div>
-                <div id="inventory-list" style="margin-top:20px"></div>
+                <h2>📦 Мой склад (Наличие)</h2>
+                <div id="inventory-list"></div>
             </div>
         </div>
 
         <div id="shopping-section" class="section" style="display: none;">
             <div class="padding">
-                <h2>🛒 Список покупок</h2>
+                <h2>🛒 Нужно купить</h2>
                 <div id="shopping-list-container"></div>
-                <button class="btn-main" style="background:var(--accent)" onclick="clearCheckedItems()">Удалить купленное</button>
+            </div>
+        </div>
+
+        <div id="products-section" class="section" style="display: none;">
+            <div class="padding">
+                <h2>🍎 Все продукты (Цены)</h2>
+                <input type="text" class="edit-input" placeholder="Поиск продукта..." oninput="renderProducts(this.value)">
+                <div id="products-list" style="margin-top:15px"></div>
             </div>
         </div>
     </div>
@@ -59,9 +69,11 @@
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchSection('menu', this)">🍴 Меню</div>
-        <div class="nav-item" onclick="switchSection('inventory', this)">📦 Склад</div>
-        <div class="nav-item" onclick="switchSection('shopping', this)">🛒 Корзина</div>
+        <div class="nav-item active" onclick="switchSection('menu', this)">🍴</div>
+        <div class="nav-item" onclick="switchSection('calendar', this)">📅</div>
+        <div class="nav-item" onclick="switchSection('inventory', this)">📦</div>
+        <div class="nav-item" onclick="switchSection('shopping', this)">🛒</div>
+        <div class="nav-item" onclick="switchSection('products', this)">🍎</div>
     </nav>
 
     <script src="app.js"></script>
