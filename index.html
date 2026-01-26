@@ -12,35 +12,32 @@
     <div class="header">
         <h1 id="page-title">Project Food</h1>
         <div id="search-bar" class="search-container" style="display: none;">
-            <button onclick="showCategories()" class="btn-back">⬅</button>
-            <input type="text" id="searchInput" class="search-box" placeholder="Поиск...">
+            <button onclick="showCategories()" class="btn-back">⬅ Назад</button>
+            <input type="text" id="searchInput" class="search-box" placeholder="Поиск блюда...">
         </div>
     </div>
 
     <div class="container">
         <div id="main-categories" class="category-selection section active">
             <div class="cat-card breakfast" onclick="filterByCategory('Завтрак')">☕ Завтраки</div>
-            <div class="cat-card lunch" onclick="filterByCategory('Обед')">🍲 Обеды</div>
-            <div class="cat-card dinner" onclick="filterByCategory('Ужин')">🥗 Ужины</div>
+            <div class="cat-card soup" onclick="filterByCategory('Суп')">🥣 Супы</div>
+            <div class="cat-card main-dish" onclick="filterByCategory('Второе блюдо')">🥩 Второе</div>
+            <div class="cat-card salad" onclick="filterByCategory('Салат')">🥗 Салаты</div>
+            <div class="cat-card side-dish" onclick="filterByCategory('Гарнир')">🍚 Гарниры</div>
             <div class="cat-card dessert" onclick="filterByCategory('Десерт')">🍰 Десерты</div>
+            <div class="cat-card drink" onclick="filterByCategory('Напиток')">🍹 Напитки</div>
         </div>
 
         <div id="recipe-grid" class="menu-grid section" style="display: none;"></div>
 
-        <div id="inventory-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>📦 Мои продукты</h2>
-                <div id="inventory-list"></div>
-                <button class="btn-main" onclick="addInventoryPrompt()">+ Добавить на склад</button>
-            </div>
+        <div id="inventory-section" class="section" style="display: none; padding: 20px;">
+            <h2>📦 Мой склад</h2>
+            <div id="inventory-list"></div>
         </div>
 
-        <div id="shopping-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>🛒 Список покупок</h2>
-                <div id="shopping-list-container"></div>
-                <button class="btn-main" style="background:var(--accent)" onclick="clearCheckedItems()">Очистить купленное</button>
-            </div>
+        <div id="shopping-section" class="section" style="display: none; padding: 20px;">
+            <h2>🛒 Список покупок</h2>
+            <div id="shopping-list-container"></div>
         </div>
     </div>
 
