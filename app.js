@@ -122,6 +122,47 @@ function closeModal() { document.getElementById('recipe-modal').style.display = 
 document.getElementById('searchInput').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     renderRecipes(allRecipes.filter(r => r.name.toLowerCase().includes(term)));
+    // Переключение между Меню, Складом и Корзиной
+function switchSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    
+    if (name === 'menu') {
+        document.getElementById('main-categories').style.display = 'grid';
+        document.getElementById('recipe-grid').style.display = 'none';
+    } else {
+        document.getElementById(name + '-section').style.display = 'block';
+        document.getElementById('main-categories').style.display = 'none';
+        document.getElementById('recipe-grid').style.display = 'none';
+        if (name === 'inventory') loadInventory();
+        if (name === 'shopping') loadShoppingList();
+    }
+    // Подсветка активной кнопки в навигации
+    event.currentTarget.classList.add('active');
+}
+
+// Загрузка списка покупок
+async function loadShoppingList() {
+    const { data } = await _supabase.from('shopping_list').select('*').order('checked');
+    const container = document.getElementById('shopping-list-container');
+    container.innerHTML = data.map(item => `
+        <div class="list-item ${item.checked ? 'checked' : ''}" onclick="toggleShopItem(${item.id}, ${item.checked})">
+            <span>${item.name} - ${item.amount} ${item.unit}</span>
+            <span class="checkmark">${item.checked ? '✅' : '⬜'}</span>
+        </div>
+    `).join('');
+}
+
+// Функция добавления из рецепта в корзину
+async function addRecipeToCart(recipeId) {
+    const r = allRecipes.find(x => x.id === recipeId);
+    const ingredients = r.ings.split(','); // Предполагаем, что они через запятую
+    
+    for (let ing of ingredients) {
+        await _supabase.from('shopping_list').insert({ name: ing.trim(), amount: 0, unit: 'шт' });
+    }
+    alert('Ингредиенты добавлены в корзину!');
+}
 });
 
 loadRecipes();
