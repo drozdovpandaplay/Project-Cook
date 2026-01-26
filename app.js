@@ -5,132 +5,119 @@ const _supabase = supabase.createClient(SB_URL, SB_KEY);
 let allRecipes = [];
 
 async function loadRecipes() {
-    const { data } = await _supabase.from('recipes').select('*').order('name');
+    const { data, error } = await _supabase.from('recipes').select('*').order('name');
+    if (error) return console.error(error);
     allRecipes = data || [];
     renderRecipes(allRecipes);
 }
 
 function renderRecipes(list) {
-    const container = document.getElementById('categories-container');
-    container.innerHTML = list.map(r => `
+    const grid = document.getElementById('recipe-grid');
+    grid.innerHTML = list.map(r => `
         <div class="card" onclick="openRecipe(${r.id})">
-            <img src="${r.image_url || 'https://via.placeholder.com/150'}" class="card-img" onerror="this.src='https://via.placeholder.com/150'">
-            <span class="card-title">${r.name}</span>
-            <small style="color:var(--primary)">${r.category}</small>
+            <img src="${r.image_url || 'https://via.placeholder.com/300x200?text=Project+Food'}" class="card-img" onerror="this.src='https://via.placeholder.com/300x200?text=Food'">
+            <div class="card-info">
+                <span class="card-title">${r.name}</span>
+                <span class="card-tag">${r.category || 'Общее'}</span>
+            </div>
         </div>
     `).join('');
 }
 
-async function openRecipe(id) {
+function openRecipe(id) {
     const r = allRecipes.find(x => x.id === id);
-    const modal = document.getElementById('recipe-modal');
-    const content = document.getElementById('recipe-detail-content');
-    
-    const steps = r.instructions || [];
-    
-    content.innerHTML = `
-        <img src="${r.image_url}" style="width:100%; border-radius:15px; height:200px; object-fit:cover;">
-        <h2>${r.name}</h2>
-        
-        <h3>Ингредиенты</h3>
-        <p>${r.ings || 'Не указаны'}</p>
+    const body = document.getElementById('modal-body');
+    const steps = Array.isArray(r.instructions) ? r.instructions : [];
 
-        <h3>Инструкция (Чек-лист)</h3>
-        <div id="steps-list">
+    body.innerHTML = `
+        <img src="${r.image_url || 'https://via.placeholder.com/600x400'}" class="recipe-hero">
+        <div class="padding">
+            <h2>${r.name}</h2>
+            <p><strong>Ингредиенты:</strong><br>${r.ings || 'Не указаны'}</p>
+            <hr>
+            <h3>Инструкция</h3>
             ${steps.map((s, i) => `
-                <div class="step-row">
-                    <input type="checkbox" id="st-${i}">
-                    <label for="st-${i}">${s.text}</label>
-                    ${s.timer ? `<button onclick="startTimer(${s.timer})">⏰ ${s.timer}м</button>` : ''}
+                <div class="step-item">
+                    <input type="checkbox" id="step-${i}">
+                    <span class="step-text">${s.text}</span>
+                    ${s.timer > 0 ? `<button onclick="startTimer(${s.timer})" style="border:none; background:#eee; padding:5px; border-radius:5px;">⏳ ${s.timer}м</button>` : ''}
                 </div>
             `).join('')}
+            <button class="btn-main" style="margin-top:20px; background:#636e72" onclick="showEditor(${r.id})">✏️ Редактировать</button>
         </div>
-
-        <button class="btn btn-save" onclick="showEditor(${r.id})">✏️ РЕДАКТИРОВАТЬ</button>
     `;
-    modal.style.display = 'block';
+    document.getElementById('recipe-modal').style.display = 'block';
 }
 
 function showEditor(id) {
     const r = allRecipes.find(x => x.id === id);
-    const content = document.getElementById('recipe-detail-content');
-    const steps = r.instructions || [];
+    const body = document.getElementById('modal-body');
+    const steps = Array.isArray(r.instructions) ? r.instructions : [];
 
-    content.innerHTML = `
-        <h3>Редактирование</h3>
-        <label>Название:</label>
-        <input type="text" id="edit-name" class="edit-input" value="${r.name}">
-        
-        <label>Ссылка на фото:</label>
-        <input type="text" id="edit-img" class="edit-input" value="${r.image_url || ''}">
-
-        <label>Ингредиенты:</label>
-        <textarea id="edit-ings" class="edit-input" rows="4">${r.ings || ''}</textarea>
-
-        <label>Шаги (текст | минуты):</label>
-        <div id="edit-steps-container">
-            ${steps.map((s, i) => `
-                <div class="step-row">
-                    <input type="text" class="step-txt edit-input" value="${s.text}" style="margin:0">
-                    <input type="number" class="step-tm edit-input" value="${s.timer || 0}" style="width:60px; margin:0">
-                </div>
-            `).join('')}
+    body.innerHTML = `
+        <div class="padding">
+            <h3>Редактор</h3>
+            <input type="text" id="edit-name" class="edit-input" value="${r.name}" placeholder="Название">
+            <input type="text" id="edit-img" class="edit-input" value="${r.image_url || ''}" placeholder="Ссылка на фото">
+            <textarea id="edit-ings" class="edit-input" rows="4" placeholder="Ингредиенты">${r.ings || ''}</textarea>
+            
+            <div id="edit-steps-list">
+                ${steps.map((s, i) => `
+                    <div class="step-row" style="display:flex; gap:5px; margin-bottom:5px;">
+                        <input type="text" class="step-t edit-input" value="${s.text}" style="margin:0">
+                        <input type="number" class="step-m edit-input" value="${s.timer || 0}" style="width:60px; margin:0">
+                    </div>
+                `).join('')}
+            </div>
+            <button onclick="addStepField()" class="btn-main" style="background:#b2bec3; margin-bottom:15px;">+ Добавить шаг</button>
+            <button onclick="saveChanges(${id})" class="btn-main">✅ Сохранить</button>
         </div>
-        <button onclick="addStepField()" class="btn">➕ Добавить шаг</button>
-
-        <button class="btn btn-save" onclick="saveToSupabase(${r.id})">✅ СОХРАНИТЬ В БАЗУ</button>
     `;
 }
 
 function addStepField() {
-    const container = document.getElementById('edit-steps-container');
-    container.innerHTML += `
-        <div class="step-row">
-            <input type="text" class="step-txt edit-input" placeholder="Что делать?" style="margin:0">
-            <input type="number" class="step-tm edit-input" placeholder="Мин" style="width:60px; margin:0">
-        </div>`;
+    const container = document.getElementById('edit-steps-list');
+    container.insertAdjacentHTML('beforeend', `
+        <div class="step-row" style="display:flex; gap:5px; margin-bottom:5px;">
+            <input type="text" class="step-t edit-input" placeholder="Шаг" style="margin:0">
+            <input type="number" class="step-m edit-input" placeholder="Мин" style="width:60px; margin:0">
+        </div>
+    `);
 }
 
-async function saveToSupabase(id) {
+async function saveChanges(id) {
     const name = document.getElementById('edit-name').value;
     const img = document.getElementById('edit-img').value;
     const ings = document.getElementById('edit-ings').value;
-    
-    const txts = document.querySelectorAll('.step-txt');
-    const tms = document.querySelectorAll('.step-tm');
-    const instructions = Array.from(txts).map((t, i) => ({
-        text: t.value,
-        timer: parseInt(tms[i].value) || 0
-    })).filter(s => s.text.trim() !== '');
+    const tFields = document.querySelectorAll('.step-t');
+    const mFields = document.querySelectorAll('.step-m');
 
-    const { error } = await _supabase.from('recipes').update({
-        name, image_url: img, ings, instructions
-    }).eq('id', id);
+    const instructions = Array.from(tFields).map((f, i) => ({
+        text: f.value,
+        timer: parseInt(mFields[i].value) || 0
+    })).filter(s => s.text !== '');
 
-    if (error) alert("Ошибка: " + error.message);
-    else { alert("Сохранено!"); closeRecipe(); loadRecipes(); }
+    const { error } = await _supabase.from('recipes').update({ name, image_url: img, ings, instructions }).eq('id', id);
+    if (error) alert(error.message);
+    else { closeModal(); loadRecipes(); }
 }
 
-// ТАЙМЕР
+// Таймер и поиск
 let timerInt;
 function startTimer(m) {
     stopTimer();
     let sec = m * 60;
-    const display = document.getElementById('global-timer');
-    const count = document.getElementById('timer-count');
-    display.style.display = 'flex';
-    
+    document.getElementById('global-timer').style.display = 'flex';
     timerInt = setInterval(() => {
         sec--;
-        let mm = Math.floor(sec / 60);
-        let ss = sec % 60;
-        count.innerText = `${mm}:${ss < 10 ? '0' : ''}${ss}`;
-        if (sec <= 0) { stopTimer(); alert("Готово!"); }
+        let mins = Math.floor(sec / 60);
+        let secs = sec % 60;
+        document.getElementById('timer-count').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        if (sec <= 0) { stopTimer(); alert("Время вышло!"); }
     }, 1000);
 }
 function stopTimer() { clearInterval(timerInt); document.getElementById('global-timer').style.display = 'none'; }
-
-function closeRecipe() { document.getElementById('recipe-modal').style.display = 'none'; }
+function closeModal() { document.getElementById('recipe-modal').style.display = 'none'; }
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
