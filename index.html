@@ -3,70 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Project Food</title>
+    <title>Project Food: Clean</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --primary: #46b8bc;
+            --secondary: #a29bfe;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #2d3436;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
+
+        /* HEADER */
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        /* NAVIGATION */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; z-index: 1000; }
+        .nav-item { font-size: 24px; cursor: pointer; filter: grayscale(1); transition: 0.3s; }
+        .nav-item.active { filter: grayscale(0); transform: scale(1.2); }
+
+        /* GRID & CARDS */
+        .container { padding: 15px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .category-card { height: 100px; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.2); cursor: pointer; }
+        
+        /* КЛАССЫ КАТЕГОРИЙ */
+        .cat-1 { background: linear-gradient(135deg, #ff9a9e, #fad0c4); }
+        .cat-2 { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); }
+        .cat-3 { background: linear-gradient(135deg, #84fab0, #8fd3f4); }
+        .cat-4 { background: linear-gradient(135deg, #fccb90, #d57eeb); }
+
+        /* LISTS */
+        .item-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .item-card input { width: 60px; padding: 5px; border: 1px solid #eee; border-radius: 6px; text-align: center; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; }
+        .modal-content { background: white; width: 90%; max-width: 400px; margin: 50px auto; border-radius: 20px; padding: 20px; position: relative; max-height: 80vh; overflow-y: auto; }
+        
+        /* TABS */
+        .tabs { display: flex; background: #eee; border-radius: 10px; padding: 4px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; border: none; padding: 8px; border-radius: 8px; cursor: pointer; background: transparent; font-weight: bold; }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .btn-save { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; }
+    </style>
 </head>
 <body>
-    <div class="header">
-        <h1 id="page-title">Project Food</h1>
-        <div id="search-bar" class="search-container" style="display: none;">
-            <button onclick="showCategories()" class="btn-back">⬅</button>
-            <input type="text" id="searchInput" class="search-box" placeholder="Поиск...">
-        </div>
+
+<div class="header">
+    <h1 id="title" style="margin:0; font-size: 20px;">Project Food</h1>
+</div>
+
+<div id="app" class="container">
     </div>
 
-    <div class="container">
-        <div id="menu-section" class="section active">
-            <div id="main-categories" class="category-selection">
-                <div class="cat-card breakfast" onclick="filterByCategory('Завтрак')">☕ Завтраки</div>
-                <div class="cat-card soup" onclick="filterByCategory('Суп')">🥣 Супы</div>
-                <div class="cat-card main-dish" onclick="filterByCategory('Второе блюдо')">🥩 Второе</div>
-                <div class="cat-card salad" onclick="filterByCategory('Салат')">🥗 Салаты</div>
-                <div class="cat-card side-dish" onclick="filterByCategory('Гарнир')">🍚 Гарниры</div>
-                <div class="cat-card dessert" onclick="filterByCategory('Десерт')">🍰 Десерты</div>
-                <div class="cat-card drink" onclick="filterByCategory('Напиток')">🍹 Напитки</div>
-            </div>
-            <div id="recipe-grid" class="menu-grid" style="display: none;"></div>
-        </div>
+<nav class="bottom-nav">
+    <div class="nav-item active" onclick="router.go('menu')">🍴</div>
+    <div class="nav-item" onclick="router.go('calendar')">📅</div>
+    <div class="nav-item" onclick="router.go('products')">🍎</div>
+</nav>
 
-        <div id="calendar-section" class="section" style="display: none; padding: 15px;">
-            <h2>📅 План на неделю</h2>
-            <div id="weekly-planner"></div>
-        </div>
+<div id="modal" class="modal">
+    <div class="modal-content" id="modal-content"></div>
+</div>
 
-        <div id="inventory-section" class="section" style="display: none; padding: 15px;">
-            <h2>📦 Склад</h2>
-            <div id="inventory-list"></div>
-        </div>
+<script>
+    const SB_URL = 'https://fwgxtjkqmslbmnecfhwj.supabase.co';
+    const SB_KEY = 'sb_publishable_27NdQpJDXhOWC_Y7kzNn7A__xs0jCUi';
+    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
-        <div id="shopping-section" class="section" style="display: none; padding: 15px;">
-            <h2>🛒 Список покупок</h2>
-            <div id="shopping-list-container"></div>
-        </div>
+    // СОСТОЯНИЕ (STATE)
+    const state = {
+        recipes: [],
+        products: [],
+        currentView: 'menu',
+        currentCategory: null
+    };
 
-        <div id="products-section" class="section" style="display: none; padding: 15px;">
-            <h2>🍎 База продуктов</h2>
-            <input type="text" class="edit-input" placeholder="Поиск..." oninput="renderProducts(this.value)">
-            <div id="products-list"></div>
-        </div>
-    </div>
+    // РОУТЕР (НАВИГАЦИЯ)
+    const router = {
+        async go(view, params = null) {
+            state.currentView = view;
+            if (params) state.currentCategory = params;
+            
+            document.querySelectorAll('.nav-item').forEach((el, idx) => {
+                el.classList.toggle('active', (view === 'menu' && idx === 0) || (view === 'calendar' && idx === 1) || (view === 'products' && idx === 2));
+            });
 
-    <div id="recipe-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div id="modal-body"></div>
-        </div>
-    </div>
+            this.render();
+        },
 
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchSection('menu', this)">🍴</div>
-        <div class="nav-item" onclick="switchSection('calendar', this)">📅</div>
-        <div class="nav-item" onclick="switchSection('inventory', this)">📦</div>
-        <div class="nav-item" onclick="switchSection('shopping', this)">🛒</div>
-        <div class="nav-item" onclick="switchSection('products', this)">🍎</div>
-    </nav>
+        async render() {
+            const app = document.getElementById('app');
+            app.innerHTML = '<p style="text-align:center">Загрузка...</p>';
 
-    <script src="app.js"></script>
+            if (state.currentView === 'menu') {
+                if (!state.currentCategory) {
+                    app.innerHTML = `
+                        <div class="grid">
+                            <div class="category-card cat-1" onclick="router.go('menu', 'Завтрак')">Завтраки</div>
+                            <div class="category-card cat-2" onclick="router.go('menu', 'Суп')">Супы</div>
+                            <div class="category-card cat-3" onclick="router.go('menu', 'Второе')">Вторые блюда</div>
+                            <div class="category-card cat-4" onclick="router.go('menu', 'Десерт')">Десерты</div>
+                        </div>`;
+                } else {
+                    const { data } = await supabaseClient.from('recipes').select('*').eq('category', state.currentCategory);
+                    app.innerHTML = `<button onclick="router.go('menu')" style="margin-bottom:15px; border:none; background:none; color:var(--primary); font-weight:bold;">⬅ Назад</button>
+                                     <div class="grid">${data.map(r => `<div class="item-card" onclick="ui.openRecipe(${r.id})">${r.name}</div>`).join('')}</div>`;
+                }
+            }
+
+            if (state.currentView === 'products') {
+                const { data } = await supabaseClient.from('products').select('*').order('name');
+                app.innerHTML = `<h2>База продуктов</h2>` + data.map(p => `
+                    <div class="item-card">
+                        <div><b>${p.name}</b><br><small>${p.kcal} ккал</small></div>
+                        <div><input type="number" value="${p.price}" onchange="ui.updatePrice(${p.id}, this.value)"> ₽</div>
+                    </div>
+                `).join('');
+            }
+        }
+    };
+
+    // UI ЛОГИКА
+    const ui = {
+        async openRecipe(id) {
+            const { data: r } = await supabaseClient.from('recipes').select('*').eq('id', id).single();
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = `
+                <span onclick="ui.closeModal()" style="position:absolute; right:20px; top:10px; font-size:24px; cursor:pointer;">&times;</span>
+                <h3>${r.name}</h3>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="ui.switchTab('t-ings', this)">Состав</button>
+                    <button class="tab-btn" onclick="ui.switchTab('t-steps', this)">Готовка</button>
+                </div>
+                <div id="t-ings" class="tab-content">${r.ings || 'Нет ингредиентов'}</div>
+                <div id="t-steps" class="tab-content" style="display:none;">
+                    <textarea id="instr" style="width:100%; height:150px; border-radius:10px; padding:10px; border:1px solid #ddd;">${r.instructions || ''}</textarea>
+                    <button class="btn-save" onclick="ui.saveInstructions(${r.id})">Сохранить</button>
+                </div>
+            `;
+            modal.style.display = 'block';
+        },
+
+        async saveInstructions(id) {
+            const text = document.getElementById('instr').value;
+            await supabaseClient.from('recipes').update({ instructions: text }).eq('id', id);
+            alert('Сохранено!');
+        },
+
+        switchTab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).style.display = 'block';
+            btn.classList.add('active');
+        },
+
+        async updatePrice(id, val) {
+            await supabaseClient.from('products').update({ price: parseFloat(val) }).eq('id', id);
+        },
+
+        closeModal() { document.getElementById('modal').style.display = 'none'; }
+    };
+
+    // Старт
+    router.render();
+</script>
+
 </body>
 </html>
