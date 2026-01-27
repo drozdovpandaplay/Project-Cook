@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Project Food Ultra</title>
+    <title>Project Food</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="header">
         <h1 id="page-title">Project Food</h1>
         <div id="search-bar" class="search-container" style="display: none;">
@@ -31,24 +30,24 @@
             <div id="recipe-grid" class="menu-grid" style="display: none;"></div>
         </div>
 
-        <div id="calendar-section" class="section" style="display: none; padding: 20px;">
+        <div id="calendar-section" class="section" style="display: none; padding: 15px;">
             <h2>📅 План на неделю</h2>
             <div id="weekly-planner"></div>
         </div>
 
-        <div id="inventory-section" class="section" style="display: none; padding: 20px;">
-            <h2>📦 Наличие дома</h2>
+        <div id="inventory-section" class="section" style="display: none; padding: 15px;">
+            <h2>📦 Склад</h2>
             <div id="inventory-list"></div>
         </div>
 
-        <div id="shopping-section" class="section" style="display: none; padding: 20px;">
+        <div id="shopping-section" class="section" style="display: none; padding: 15px;">
             <h2>🛒 Список покупок</h2>
             <div id="shopping-list-container"></div>
         </div>
 
-        <div id="products-section" class="section" style="display: none; padding: 20px;">
-            <h2>🍎 База цен и Ккал</h2>
-            <input type="text" class="edit-input" placeholder="Поиск в базе..." oninput="renderProducts(this.value)">
+        <div id="products-section" class="section" style="display: none; padding: 15px;">
+            <h2>🍎 База продуктов</h2>
+            <input type="text" class="edit-input" placeholder="Поиск..." oninput="renderProducts(this.value)">
             <div id="products-list"></div>
         </div>
     </div>
