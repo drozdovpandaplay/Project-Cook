@@ -13,12 +13,11 @@
         <h1 id="page-title">Project Food</h1>
         <div id="search-bar" class="search-container" style="display: none;">
             <button onclick="showCategories()" class="btn-back">⬅</button>
-            <input type="text" id="searchInput" class="search-box" placeholder="Поиск блюда...">
+            <input type="text" id="searchInput" class="search-box" placeholder="Поиск...">
         </div>
     </div>
 
     <div class="container">
-        
         <div id="menu-section" class="section active">
             <div id="main-categories" class="category-selection">
                 <div class="cat-card breakfast" onclick="filterByCategory('Завтрак')">☕ Завтраки</div>
@@ -32,42 +31,32 @@
             <div id="recipe-grid" class="menu-grid" style="display: none;"></div>
         </div>
 
-        <div id="calendar-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>📅 План на неделю</h2>
-                <div id="weekly-planner"></div>
-            </div>
+        <div id="calendar-section" class="section" style="display: none; padding: 20px;">
+            <h2>📅 План на неделю</h2>
+            <div id="weekly-planner"></div>
         </div>
 
-        <div id="inventory-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>📦 Мой склад</h2>
-                <div id="inventory-list"></div>
-            </div>
+        <div id="inventory-section" class="section" style="display: none; padding: 20px;">
+            <h2>📦 Наличие дома</h2>
+            <div id="inventory-list"></div>
         </div>
 
-        <div id="shopping-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>🛒 Список покупок</h2>
-                <div id="shopping-list-container"></div>
-            </div>
+        <div id="shopping-section" class="section" style="display: none; padding: 20px;">
+            <h2>🛒 Список покупок</h2>
+            <div id="shopping-list-container"></div>
         </div>
 
-        <div id="products-section" class="section" style="display: none;">
-            <div class="padding">
-                <h2>🍎 Справочник продуктов</h2>
-                <input type="text" class="edit-input" placeholder="Поиск в базе..." oninput="renderProducts(this.value)">
-                <div id="products-list"></div>
-            </div>
+        <div id="products-section" class="section" style="display: none; padding: 20px;">
+            <h2>🍎 База цен и Ккал</h2>
+            <input type="text" class="edit-input" placeholder="Поиск в базе..." oninput="renderProducts(this.value)">
+            <div id="products-list"></div>
         </div>
-
     </div>
 
     <div id="recipe-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div id="modal-body">
-                </div>
+            <div id="modal-body"></div>
         </div>
     </div>
 
