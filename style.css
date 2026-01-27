@@ -1,11 +1,12 @@
-:root { --primary: #46b8bc; --accent: #ff7675; --bg: #f4f7f6; --dark: #2d3436; }
+:root { --primary: #46b8bc; --bg: #f4f7f6; --dark: #2d3436; }
 body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
 
-.header { background: var(--primary); padding: 15px; color: white; text-align: center; sticky: top; z-index: 100; }
-.category-selection { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
-.cat-card { height: 90px; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.header { background: var(--primary); padding: 15px; color: white; text-align: center; position: sticky; top: 0; z-index: 100; }
 
-/* Цвета категорий */
+.category-selection { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+.cat-card { height: 90px; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 14px; }
+
+/* Категории градиенты */
 .breakfast { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
 .soup { background: linear-gradient(135deg, #f6d365, #fda085); }
 .main-dish { background: linear-gradient(135deg, #f093fb, #f5576c); }
@@ -14,24 +15,12 @@ body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg);
 .dessert { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
 .drink { background: linear-gradient(135deg, #84fab0, #8fd3f4); }
 
-.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
-.card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.card-img { width: 100%; height: 100px; object-fit: cover; background: #eee; }
+.bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; z-index: 1000; }
+.nav-item { font-size: 24px; filter: grayscale(1); transition: 0.3s; cursor: pointer; }
+.nav-item.active { filter: grayscale(0); transform: translateY(-5px); }
 
-/* Вкладки в модалке */
-.tabs { display: flex; gap: 5px; margin-bottom: 15px; background: #eee; padding: 5px; border-radius: 12px; }
-.btn-tab { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-weight: bold; color: #666; cursor: pointer; }
-.active-tab { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
+.modal-content { background: white; margin: 10% auto; width: 90%; max-width: 400px; border-radius: 20px; padding: 20px; max-height: 80vh; overflow-y: auto; }
 
-.step-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; padding: 10px; background: #f9f9f9; border-radius: 10px; }
-.step-item input:checked + label { text-decoration: line-through; color: #aaa; }
-
-.bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; }
-.nav-item { font-size: 22px; filter: grayscale(1); cursor: pointer; }
-.nav-item.active { filter: grayscale(0); transform: scale(1.2); }
-
-.product-item { background: white; padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; border-left: 4px solid var(--primary); }
-.edit-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-top: 5px; }
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); overflow-y: auto; }
-.modal-content { background: white; margin: 5% auto; width: 90%; max-width: 450px; border-radius: 20px; padding: 20px; position: relative; }
-.btn-main { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; }
+.product-item { background: white; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); }
+.edit-input { width: 90%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px; }
