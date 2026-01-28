@@ -3,54 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Food Admin</title>
+    <title>Project Food: Admin Final</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f0f4f8; padding: 20px; margin: 0; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { margin-top: 0; font-size: 1.2rem; color: #334155; }
-        textarea { width: 100%; height: 120px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; font-family: monospace; background: #f8fafc; margin-bottom: 10px; font-size: 14px; }
-        .btn { border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; color: white; transition: 0.2s; }
-        .btn-blue { background: #3b82f6; margin-bottom: 10px; }
-        .btn-green { background: #10b981; }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
-        #urlResult { background: #f1f5f9; padding: 10px; border-radius: 8px; font-size: 11px; word-break: break-all; margin-top: 10px; display: none; border: 1px dashed #94a3b8; }
-        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ccc; margin-right: 5px; }
+        :root { --primary: #2563eb; --secondary: #059669; --bg: #f8fafc; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #1e293b; }
+        .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        h2 { margin: 0 0 15px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        textarea { width: 100%; height: 120px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 14px; background: #f1f5f9; }
+        .btn { color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; }
+        .btn-blue { background: var(--primary); }
+        .btn-green { background: var(--secondary); }
+        .btn:active { opacity: 0.7; transform: scale(0.98); }
+        #urlResult { background: #f1f5f9; padding: 12px; border-radius: 8px; font-size: 11px; word-break: break-all; margin-top: 15px; border: 1px dashed #cbd5e1; display: none; color: #475569; }
+        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ccc; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2><span class="status-dot" id="statusImg"></span> 1. Загрузка фото</h2>
-        <input type="file" id="imageInput" accept="image/*" style="margin-bottom: 10px; width: 100%;">
-        <button class="btn btn-blue" onclick="uploadPhoto()">Загрузить в Storage</button>
+        <h2><span class="status-dot" id="statusImg"></span> 🖼️ Загрузка фото</h2>
+        <input type="file" id="imageInput" accept="image/*" style="width: 100%; margin-bottom: 10px;">
+        <button class="btn btn-blue" onclick="uploadPhoto()">Загрузить и получить ссылку</button>
         <div id="urlResult"></div>
     </div>
 
     <div class="card">
-        <h2><span class="status-dot" id="statusSql"></span> 2. SQL Терминал</h2>
-        <textarea id="sqlInput" placeholder="Вставь сюда SQL код рецепта..."></textarea>
-        <button class="btn btn-green" onclick="runSQL()">Выполнить SQL</button>
+        <h2><span class="status-dot" id="statusSql"></span> 💻 SQL Терминал</h2>
+        <textarea id="sqlInput" placeholder="Вставь SQL код рецепта сюда..."></textarea>
+        <button class="btn btn-green" onclick="runSQL()">Выполнить команду</button>
     </div>
 
 <script>
-    // === ТВОИ ДАННЫЕ ВСТАВЛЕНЫ ===
-    const URL_CONF = 'https://fwgxtjkqmslbmnecfhwj.supabase.co'; 
-    const KEY_CONF = 'Sb_publishable_27NdQpJDXhOWC_Y7kzNn7A';
-    // =============================
+    // ТВОИ ДАННЫЕ ВСТАВЛЕНЫ И ПРОВЕРЕНЫ
+    const SUPABASE_URL = 'https://fwgxtjkqmslbmnecfhwj.supabase.co';
+    const SUPABASE_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3Z3h0amtxbXNsYm1uZWNmaHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyNjg3MjQsImV4cCI6MjA4NDg0NDcyNH0.l0X2dfSnAmkoVWOdPg4l5CCptmcW7pnehRoBDtosk9g';
 
-    const supabaseClient = supabase.createClient(URL_CONF.trim(), KEY_CONF.trim());
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function uploadPhoto() {
         const fileInput = document.getElementById('imageInput');
         const file = fileInput.files[0];
-        const resDiv = document.getElementById('urlResult');
         const dot = document.getElementById('statusImg');
+        const resDiv = document.getElementById('urlResult');
 
-        if (!file) return alert('Сначала выбери файл!');
+        if (!file) return alert('⚠️ Сначала выбери файл!');
 
-        dot.style.background = '#fbbf24'; // Желтый
-
+        dot.style.background = '#fbbf24'; // Ожидание
         const fileName = `recipe_${Date.now()}.jpg`;
 
         try {
@@ -63,34 +62,29 @@
             const { data: urlData } = supabaseClient.storage.from('recipe-images').getPublicUrl(fileName);
             resDiv.innerText = urlData.publicUrl;
             resDiv.style.display = 'block';
-            dot.style.background = '#10b981'; // Зеленый
-            alert('✅ Фото успешно загружено!');
+            dot.style.background = '#10b981'; // Успех
+            alert('✅ Фото в базе! Ссылку ниже можно использовать в SQL.');
         } catch (err) {
-            dot.style.background = '#ef4444'; // Красный
-            alert('Ошибка: ' + err.message);
+            dot.style.background = '#ef4444'; // Ошибка
+            alert('❌ Ошибка Storage: ' + err.message);
         }
     }
 
     async function runSQL() {
         const sql = document.getElementById('sqlInput').value.trim();
         const dot = document.getElementById('statusSql');
-        
-        if (!sql) return alert('Введите SQL код!');
+        if (!sql) return alert('⚠️ Поле SQL пустое!');
 
         dot.style.background = '#fbbf24';
-
         try {
             const { error } = await supabaseClient.rpc('exec_sql', { query: sql });
-            
             if (error) throw error;
-
             dot.style.background = '#10b981';
-            alert('🚀 SQL успешно выполнен!');
+            alert('🚀 SQL команда выполнена успешно!');
             document.getElementById('sqlInput').value = '';
         } catch (err) {
             dot.style.background = '#ef4444';
-            console.error(err);
-            alert('Ошибка SQL: ' + err.message);
+            alert('❌ Ошибка SQL: ' + err.message);
         }
     }
 </script>
