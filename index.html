@@ -3,58 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Food: Admin Panel</title>
+    <title>Project Food Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --primary: #2563eb; --secondary: #059669; --bg: #f8fafc; --card: #ffffff; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #1e293b; }
-        .card { background: var(--card); padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
-        h2 { margin: 0 0 15px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
-        textarea { width: 100%; height: 120px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; box-sizing: border-box; font-family: 'Courier New', monospace; font-size: 14px; background: #f1f5f9; }
-        .btn { background: var(--primary); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; }
-        .btn:active { opacity: 0.7; }
-        .btn-sql { background: var(--secondary); }
-        .url-display { background: #f1f5f9; padding: 12px; border-radius: 8px; font-size: 12px; word-break: break-all; margin-top: 15px; border: 1px dashed #cbd5e1; display: none; color: #475569; }
-        .status { font-size: 12px; color: #64748b; margin-top: 5px; text-align: center; }
+        body { font-family: -apple-system, sans-serif; background: #f0f4f8; padding: 20px; margin: 0; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { margin-top: 0; font-size: 1.2rem; color: #334155; }
+        textarea { width: 100%; height: 120px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; font-family: monospace; background: #f8fafc; margin-bottom: 10px; font-size: 14px; }
+        .btn { border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-blue { background: #3b82f6; margin-bottom: 10px; }
+        .btn-green { background: #10b981; }
+        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        #urlResult { background: #f1f5f9; padding: 10px; border-radius: 8px; font-size: 11px; word-break: break-all; margin-top: 10px; display: none; border: 1px dashed #94a3b8; }
+        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ccc; margin-right: 5px; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>🖼️ Загрузка фото в Storage</h2>
-        <input type="file" id="imageInput" accept="image/*" style="width: 100%;">
-        <button class="btn" onclick="uploadPhoto()">Загрузить и получить ссылку</button>
-        <div id="urlResult" class="url-display"></div>
-        <p class="status">Файлы попадают в бакет 'recipe-images'</p>
+        <h2><span class="status-dot" id="statusImg"></span> 1. Загрузка фото</h2>
+        <input type="file" id="imageInput" accept="image/*" style="margin-bottom: 10px; width: 100%;">
+        <button class="btn btn-blue" onclick="uploadPhoto()">Загрузить в Storage</button>
+        <div id="urlResult"></div>
     </div>
 
     <div class="card">
-        <h2>💻 SQL Терминал</h2>
-        <textarea id="sqlInput" placeholder="INSERT INTO recipes..."></textarea>
-        <button class="btn btn-sql" onclick="runSQL()">Выполнить команду</button>
-        <p class="status">Команды выполняются через функцию exec_sql</p>
+        <h2><span class="status-dot" id="statusSql"></span> 2. SQL Терминал</h2>
+        <textarea id="sqlInput" placeholder="Вставь сюда SQL код рецепта..."></textarea>
+        <button class="btn btn-green" onclick="runSQL()">Выполнить SQL</button>
     </div>
 
 <script>
-    // НАСТРОЙКИ ПОДКЛЮЧЕНИЯ
-    const SUPABASE_URL = 'https://ТВОЙ_ПРОЕКТ.supabase.co';
-    const SUPABASE_KEY = 'ТВОЙ_КЛЮЧ';
+    // === ТВОИ ДАННЫЕ ВСТАВЛЕНЫ ===
+    const URL_CONF = 'https://fwgxtjkqmslbmnecfhwj.supabase.co'; 
+    const KEY_CONF = 'Sb_publishable_27NdQpJDXhOWC_Y7kzNn7A';
+    // =============================
 
-    // Инициализация клиента
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabaseClient = supabase.createClient(URL_CONF.trim(), KEY_CONF.trim());
 
-    // 1. ФУНКЦИЯ ЗАГРУЗКИ ФОТО
     async function uploadPhoto() {
         const fileInput = document.getElementById('imageInput');
         const file = fileInput.files[0];
         const resDiv = document.getElementById('urlResult');
+        const dot = document.getElementById('statusImg');
 
-        if (!file) {
-            alert('⚠️ Выберите файл на телефоне!');
-            return;
-        }
+        if (!file) return alert('Сначала выбери файл!');
 
-        // Генерируем уникальное имя файла
+        dot.style.background = '#fbbf24'; // Желтый
+
         const fileName = `recipe_${Date.now()}.jpg`;
 
         try {
@@ -64,43 +60,39 @@
 
             if (error) throw error;
 
-            // Получаем публичную ссылку
-            const { data: urlData } = supabaseClient.storage
-                .from('recipe-images')
-                .getPublicUrl(fileName);
-
+            const { data: urlData } = supabaseClient.storage.from('recipe-images').getPublicUrl(fileName);
             resDiv.innerText = urlData.publicUrl;
             resDiv.style.display = 'block';
-            alert('✅ Фото загружено! Ссылка появилась в сером поле.');
+            dot.style.background = '#10b981'; // Зеленый
+            alert('✅ Фото успешно загружено!');
         } catch (err) {
-            console.error(err);
-            alert('❌ Ошибка Storage: ' + err.message);
+            dot.style.background = '#ef4444'; // Красный
+            alert('Ошибка: ' + err.message);
         }
     }
 
-    // 2. ФУНКЦИЯ ВЫПОЛНЕНИЯ SQL
     async function runSQL() {
         const sql = document.getElementById('sqlInput').value.trim();
+        const dot = document.getElementById('statusSql');
         
-        if (!sql) {
-            alert('⚠️ Введите SQL код!');
-            return;
-        }
+        if (!sql) return alert('Введите SQL код!');
+
+        dot.style.background = '#fbbf24';
 
         try {
-            // Вызываем RPC функцию в Supabase
-            const { data, error } = await supabaseClient.rpc('exec_sql', { query: sql });
-
+            const { error } = await supabaseClient.rpc('exec_sql', { query: sql });
+            
             if (error) throw error;
 
-            alert('🚀 Успешно! База данных обновлена.');
-            document.getElementById('sqlInput').value = ''; // Чистим поле
+            dot.style.background = '#10b981';
+            alert('🚀 SQL успешно выполнен!');
+            document.getElementById('sqlInput').value = '';
         } catch (err) {
+            dot.style.background = '#ef4444';
             console.error(err);
-            alert('❌ Ошибка SQL: ' + err.message);
+            alert('Ошибка SQL: ' + err.message);
         }
     }
 </script>
-
 </body>
 </html>
