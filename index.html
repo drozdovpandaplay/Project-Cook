@@ -3,72 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Food Admin</title>
+    <title>Project Food: Admin Panel</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 15px; margin: 0; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { color: #1e293b; margin-top: 0; font-size: 1.2rem; }
-        textarea { width: 100%; height: 150px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; font-family: monospace; }
-        input[type="file"] { margin: 10px 0; }
-        .btn { background: #2563eb; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-sql { background: #059669; }
-        .url-display { background: #e2e8f0; padding: 10px; border-radius: 5px; font-size: 0.8rem; word-break: break-all; margin-top: 10px; display: none; }
+        :root { --primary: #2563eb; --secondary: #059669; --bg: #f8fafc; --card: #ffffff; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #1e293b; }
+        .card { background: var(--card); padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        h2 { margin: 0 0 15px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        textarea { width: 100%; height: 120px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; box-sizing: border-box; font-family: 'Courier New', monospace; font-size: 14px; background: #f1f5f9; }
+        .btn { background: var(--primary); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; }
+        .btn:active { opacity: 0.7; }
+        .btn-sql { background: var(--secondary); }
+        .url-display { background: #f1f5f9; padding: 12px; border-radius: 8px; font-size: 12px; word-break: break-all; margin-top: 15px; border: 1px dashed #cbd5e1; display: none; color: #475569; }
+        .status { font-size: 12px; color: #64748b; margin-top: 5px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>1. Загрузка картинки</h2>
-    <input type="file" id="imageInput" accept="image/*">
-    <button class="btn" onclick="uploadPhoto()">Загрузить в Storage</button>
-    <div id="urlResult" class="url-display"></div>
-</div>
+    <div class="card">
+        <h2>🖼️ Загрузка фото в Storage</h2>
+        <input type="file" id="imageInput" accept="image/*" style="width: 100%;">
+        <button class="btn" onclick="uploadPhoto()">Загрузить и получить ссылку</button>
+        <div id="urlResult" class="url-display"></div>
+        <p class="status">Файлы попадают в бакет 'recipe-images'</p>
+    </div>
 
-<div class="card">
-    <h2>2. SQL Терминал (Загрузка рецептов)</h2>
-    <textarea id="sqlInput" placeholder="Вставь сюда SQL код рецепта..."></textarea>
-    <button class="btn btn-sql" onclick="runSQL()">Выполнить SQL команду</button>
-</div>
+    <div class="card">
+        <h2>💻 SQL Терминал</h2>
+        <textarea id="sqlInput" placeholder="INSERT INTO recipes..."></textarea>
+        <button class="btn btn-sql" onclick="runSQL()">Выполнить команду</button>
+        <p class="status">Команды выполняются через функцию exec_sql</p>
+    </div>
 
 <script>
-    const SUPABASE_URL = 'ТВОЙ_URL';
-    const SUPABASE_KEY = 'ТВОЙ_KEY';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // НАСТРОЙКИ ПОДКЛЮЧЕНИЯ
+    const SUPABASE_URL = 'https://ТВОЙ_ПРОЕКТ.supabase.co';
+    const SUPABASE_KEY = 'ТВОЙ_КЛЮЧ';
 
+    // Инициализация клиента
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // 1. ФУНКЦИЯ ЗАГРУЗКИ ФОТО
     async function uploadPhoto() {
-        const file = document.getElementById('imageInput').files[0];
-        if (!file) return alert('Выбери файл!');
-        
-        const fileName = `recipe_${Date.now()}.jpg`;
-        const { data, error } = await supabase.storage
-            .from('recipe-images')
-            .upload(fileName, file);
-
-        if (error) return alert('Ошибка загрузки: ' + error.message);
-
-        const { data: urlData } = supabase.storage.from('recipe-images').getPublicUrl(fileName);
-        const publicUrl = urlData.publicUrl;
-        
+        const fileInput = document.getElementById('imageInput');
+        const file = fileInput.files[0];
         const resDiv = document.getElementById('urlResult');
-        resDiv.innerText = publicUrl;
-        resDiv.style.display = 'block';
-        alert('Фото загружено! Скопируй ссылку для SQL');
+
+        if (!file) {
+            alert('⚠️ Выберите файл на телефоне!');
+            return;
+        }
+
+        // Генерируем уникальное имя файла
+        const fileName = `recipe_${Date.now()}.jpg`;
+
+        try {
+            const { data, error } = await supabaseClient.storage
+                .from('recipe-images')
+                .upload(fileName, file);
+
+            if (error) throw error;
+
+            // Получаем публичную ссылку
+            const { data: urlData } = supabaseClient.storage
+                .from('recipe-images')
+                .getPublicUrl(fileName);
+
+            resDiv.innerText = urlData.publicUrl;
+            resDiv.style.display = 'block';
+            alert('✅ Фото загружено! Ссылка появилась в сером поле.');
+        } catch (err) {
+            console.error(err);
+            alert('❌ Ошибка Storage: ' + err.message);
+        }
     }
 
+    // 2. ФУНКЦИЯ ВЫПОЛНЕНИЯ SQL
     async function runSQL() {
-        const sql = document.getElementById('sqlInput').value;
-        if (!sql) return alert('Введите SQL код!');
+        const sql = document.getElementById('sqlInput').value.trim();
+        
+        if (!sql) {
+            alert('⚠️ Введите SQL код!');
+            return;
+        }
 
-        // Вызываем созданную нами функцию exec_sql
-        const { error } = await supabase.rpc('exec_sql', { query: sql });
+        try {
+            // Вызываем RPC функцию в Supabase
+            const { data, error } = await supabaseClient.rpc('exec_sql', { query: sql });
 
-        if (error) {
-            console.error(error);
-            alert('Ошибка SQL: ' + error.message);
-        } else {
-            alert('Успешно! Рецепт обновлен.');
-            document.getElementById('sqlInput').value = '';
+            if (error) throw error;
+
+            alert('🚀 Успешно! База данных обновлена.');
+            document.getElementById('sqlInput').value = ''; // Чистим поле
+        } catch (err) {
+            console.error(err);
+            alert('❌ Ошибка SQL: ' + err.message);
         }
     }
 </script>
