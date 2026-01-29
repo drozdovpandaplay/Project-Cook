@@ -3,90 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Food: Admin Final</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Карточка изделия — Шаблон с фото</title>
     <style>
-        :root { --primary: #2563eb; --secondary: #059669; --bg: #f8fafc; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #1e293b; }
-        .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid #e2e8f0; }
-        h2 { margin: 0 0 15px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
-        textarea { width: 100%; height: 120px; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 14px; background: #f1f5f9; }
-        .btn { color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-weight: 600; font-size: 16px; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; }
-        .btn-blue { background: var(--primary); }
-        .btn-green { background: var(--secondary); }
-        .btn:active { opacity: 0.7; transform: scale(0.98); }
-        #urlResult { background: #f1f5f9; padding: 12px; border-radius: 8px; font-size: 11px; word-break: break-all; margin-top: 15px; border: 1px dashed #cbd5e1; display: none; color: #475569; }
-        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ccc; }
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e67e22;
+            --bg-light: #f4f7f6;
+            --text-main: #333;
+            --border-color: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .product-card {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 20px 30px;
+        }
+
+        .header h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 30px;
+            gap: 30px;
+        }
+
+        /* Блок с фото */
+        .product-image {
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            object-fit: cover;
+        }
+
+        /* Блок с описанием */
+        .product-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .specs-list {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 25px;
+        }
+
+        .specs-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #ddd;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .specs-list li span { color: #777; font-size: 14px; }
+
+        .features {
+            background: #fff9f4;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .footer-info {
+            background: #f1f2f6;
+            padding: 15px 30px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #ddd;
+        }
+
+        @media (max-width: 768px) {
+            .product-image { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2><span class="status-dot" id="statusImg"></span> 🖼️ Загрузка фото</h2>
-        <input type="file" id="imageInput" accept="image/*" style="width: 100%; margin-bottom: 10px;">
-        <button class="btn btn-blue" onclick="uploadPhoto()">Загрузить и получить ссылку</button>
-        <div id="urlResult"></div>
+<div class="product-card">
+    <div class="header">
+        <h1>Скамейка ОФ-1877</h1>
     </div>
 
-    <div class="card">
-        <h2><span class="status-dot" id="statusSql"></span> 💻 SQL Терминал</h2>
-        <textarea id="sqlInput" placeholder="Вставь SQL код рецепта сюда..."></textarea>
-        <button class="btn btn-green" onclick="runSQL()">Выполнить команду</button>
+    <div class="main-content">
+        <div class="product-image">
+            <img src="https://via.placeholder.com/600x400?text=ОФ-1877+PHOTO" alt="Скамейка ОФ-1877">
+            <p style="font-size: 12px; color: #999; text-align: center; margin-top: 10px;">* Внешний вид может незначительно отличаться в зависимости от выбранного дерева</p>
+        </div>
+
+        <div class="product-info">
+            <div class="section-title">Характеристики</div>
+            <ul class="specs-list">
+                <li><span>Каркас:</span> <strong>Сталь + Порошковая краска</strong></li>
+                <li><span>Сиденье:</span> <strong>Брус сосны/лиственницы</strong></li>
+                <li><span>Длина:</span> <strong>1800 мм</strong></li>
+                <li><span>Тип монтажа:</span> <strong>Анкерный / Свободный</strong></li>
+            </ul>
+
+            <div class="section-title">Особенности модели</div>
+            <div class="features">
+                Усиленный стальной каркас и специальная обработка дерева позволяют использовать скамейку в зонах с высокой проходимостью. Покрытие устойчиво к осадкам и ультрафиолету.
+            </div>
+        </div>
     </div>
 
-<script>
-    // ТВОИ ДАННЫЕ ВСТАВЛЕНЫ И ПРОВЕРЕНЫ
-    const SUPABASE_URL = 'https://fwgxtjkqmslbmnecfhwj.supabase.co';
-    const SUPABASE_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3Z3h0amtxbXNsYm1uZWNmaHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyNjg3MjQsImV4cCI6MjA4NDg0NDcyNH0.l0X2dfSnAmkoVWOdPg4l5CCptmcW7pnehRoBDtosk9g';
+    <div class="footer-info">
+        <span>Артикул: ОФ-1877-PND</span>
+        <span>Гарантия: 12 месяцев</span>
+    </div>
+</div>
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    async function uploadPhoto() {
-        const fileInput = document.getElementById('imageInput');
-        const file = fileInput.files[0];
-        const dot = document.getElementById('statusImg');
-        const resDiv = document.getElementById('urlResult');
-
-        if (!file) return alert('⚠️ Сначала выбери файл!');
-
-        dot.style.background = '#fbbf24'; // Ожидание
-        const fileName = `recipe_${Date.now()}.jpg`;
-
-        try {
-            const { data, error } = await supabaseClient.storage
-                .from('recipe-images')
-                .upload(fileName, file);
-
-            if (error) throw error;
-
-            const { data: urlData } = supabaseClient.storage.from('recipe-images').getPublicUrl(fileName);
-            resDiv.innerText = urlData.publicUrl;
-            resDiv.style.display = 'block';
-            dot.style.background = '#10b981'; // Успех
-            alert('✅ Фото в базе! Ссылку ниже можно использовать в SQL.');
-        } catch (err) {
-            dot.style.background = '#ef4444'; // Ошибка
-            alert('❌ Ошибка Storage: ' + err.message);
-        }
-    }
-
-    async function runSQL() {
-        const sql = document.getElementById('sqlInput').value.trim();
-        const dot = document.getElementById('statusSql');
-        if (!sql) return alert('⚠️ Поле SQL пустое!');
-
-        dot.style.background = '#fbbf24';
-        try {
-            const { error } = await supabaseClient.rpc('exec_sql', { query: sql });
-            if (error) throw error;
-            dot.style.background = '#10b981';
-            alert('🚀 SQL команда выполнена успешно!');
-            document.getElementById('sqlInput').value = '';
-        } catch (err) {
-            dot.style.background = '#ef4444';
-            alert('❌ Ошибка SQL: ' + err.message);
-        }
-    }
-</script>
 </body>
 </html>
