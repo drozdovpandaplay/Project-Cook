@@ -2,151 +2,70 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Карточка изделия — Скамейка NNN </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>projectCook</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #e67e22;
-            --bg-light: #f4f7f6;
-            --text-main: #333;
-            --border-color: #dcdde1;
+            --bg: var(--tg-theme-bg-color, #ffffff);
+            --sec-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            --text: var(--tg-theme-text-color, #000000);
+            --btn: var(--tg-theme-button-color, #2481cc);
+            --btn-text: var(--tg-theme-button-text-color, #ffffff);
+            --hint: var(--tg-theme-hint-color, #999);
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text-main);
-            background-color: var(--bg-light);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .product-card {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        .header {
-            background-color: var(--primary-color);
-            color: #fff;
-            padding: 20px 30px;
-        }
-
-        .header h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
-
-        .main-content {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 30px;
-            gap: 30px;
-        }
-
-        /* Блок с фото */
-        .product-image {
-            flex: 1;
-            min-width: 300px;
-            max-width: 450px;
-        }
-
-        .product-image img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            border: 1px solid #eee;
-            object-fit: cover;
-        }
-
-        /* Блок с описанием */
-        .product-info {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .specs-list {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 25px;
-        }
-
-        .specs-list li {
-            padding: 8px 0;
-            border-bottom: 1px dashed #ddd;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .specs-list li span { color: #777; font-size: 14px; }
-
-        .features {
-            background: #fff9f4;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .footer-info {
-            background: #f1f2f6;
-            padding: 15px 30px;
-            font-size: 13px;
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid #ddd;
-        }
-
-        @media (max-width: 768px) {
-            .product-image { max-width: 100%; }
-        }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
+        .categories-nav { position: sticky; top: 0; background: var(--bg); padding: 10px; display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid var(--sec-bg); z-index: 10; }
+        .nav-item { background: var(--sec-bg); border: none; padding: 8px 15px; border-radius: 20px; color: var(--text); white-space: nowrap; }
+        .section-header { padding: 20px 15px 5px; font-size: 13px; font-weight: bold; color: var(--hint); text-transform: uppercase; }
+        .item-card { background: var(--sec-bg); margin: 12px 15px; border-radius: 16px; overflow: hidden; }
+        .item-img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
+        .item-content { padding: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .add-btn { background: var(--btn); color: var(--btn-text); border: none; padding: 10px 20px; border-radius: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
-
-<div class="product-card">
-    <div class="header">
-        <h1>Скамейка ОФ-1877</h1>
+    <div class="categories-nav">
+        <button class="nav-item" onclick="document.getElementById('breakfast').scrollIntoView({behavior:'smooth'})">🍳 Завтраки</button>
+        <button class="nav-item" onclick="document.getElementById('lunch').scrollIntoView({behavior:'smooth'})">🍲 Обеды</button>
     </div>
 
-    <div class="main-content">
-        <div class="product-image">
-            <img src=https:github.com/drozdovpandaplay/Project-Cook/blob/main/icon.png alt="Скамейка su-7777">
-            <p style="font-size: 12px; color: #999; text-align: center; margin-top: 10px;">* Внешний вид может незначительно отличаться в зависимости от выбранного дерева</p>
-        </div>
-
-        <div class="product-info">
-            <div class="section-title">Характеристики</div>
-            <ul class="specs-list">
-                <li><span>Каркас:</span> <strong>Сталь + Порошковая краска</strong></li>
-                <li><span>Сиденье:</span> <strong>Брус сосны/лиственницы</strong></li>
-                <li><span>Длина:</span> <strong>1800 мм</strong></li>
-                <li><span>Тип монтажа:</span> <strong>Анкерный / Свободный</strong></li>
-            </ul>
-
-            <div class="section-title">Особенности модели</div>
-            <div class="features">
-                Усиленный стальной каркас и специальная обработка дерева позволяют использовать скамейку в зонах с высокой проходимостью. Покрытие устойчиво к осадкам и ультрафиолету.
-            </div>
+    <div id="breakfast" class="section-header">Завтраки projectCook</div>
+    <div class="item-card">
+        <img src="img/breakfast.jpg" class="item-img" alt="Завтрак">
+        <div class="item-content">
+            <div class="item-info"><b>Завтрак чемпиона</b><br><span>350 ₽</span></div>
+            <button class="add-btn" onclick="addToOrder('Завтрак чемпиона', 350)">+</button>
         </div>
     </div>
 
-    <div class="footer-info">
-        <span>Артикул: ОФ-1877-PND</span>
-        <span>Гарантия: 12 месяцев</span>
+    <div id="lunch" class="section-header">Обеды projectCook</div>
+    <div class="item-card">
+        <img src="img/lunch.jpg" class="item-img" alt="Обед">
+        <div class="item-content">
+            <div class="item-info"><b>Лосось с овощами</b><br><span>650 ₽</span></div>
+            <button class="add-btn" onclick="addToOrder('Лосось с овощами', 650)">+</button>
+        </div>
     </div>
-</div>
 
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        let totalPrice = 0;
+        let cartItems = [];
+
+        function addToOrder(name, price) {
+            totalPrice += price;
+            cartItems.push(name);
+            tg.MainButton.setText(`ОФОРМИТЬ В PROJECTCOOK: ${totalPrice} ₽`);
+            tg.MainButton.show();
+        }
+
+        tg.onEvent('mainButtonClicked', function() {
+            tg.sendData(`Заказ в projectCook: ${cartItems.join(', ')}. Итого: ${totalPrice}₽`);
+            tg.close();
+        });
+    </script>
 </body>
 </html>
